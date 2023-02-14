@@ -1,41 +1,46 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-// components: login
 import ErrorPage from "./error/ErrorPage";
-import LoginLayout from "./layout/LoginLayout";
-import LoginPage from "./login/LoginPage";
-import RegisterPage from "./login/RegisterPage";
 
-//// components: main page
-import MainPage from "./main/Main";
+// components: login
+import LoginLayout from "./layout/LoginLayout/LoginLayout";
+import LoginPage from "./routes/login/Login";
+import RegisterPage from "./routes/login/Register";
+
+// components: main page
+import MainLayout from "./layout/MainLayout/MainLayout";
+import MainPage from "./routes/root/Main";
+import ProjectsPage from "./routes/project/Project";
 
 //middleware
-import { AuthorizeUser, ProtectedRoute } from "../middleware/Auth";
-
-import "./App.css";
+import { AuthorizeUser, ProtectedRoute } from "../middleware/auth";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <AuthorizeUser>
-        <MainPage />
+        <MainLayout />
       </AuthorizeUser>
     ),
     errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/",
+        element: <MainPage />,
+      },
+      {
+        path: "/project/:projectId",
+        element: <ProjectsPage />,
+      },
+    ],
   },
   {
-    path: "/auth",
+    path: "/auth/login",
     element: (
       <ProtectedRoute>
         <LoginLayout />
-        <ToastContainer
-          position="top-center"
-          autoClose={3000}
-          pauseOnFocusLoss={false}
-          draggable={false}
-        />
       </ProtectedRoute>
     ),
     children: [
@@ -44,19 +49,25 @@ const router = createBrowserRouter([
         element: <LoginPage />,
       },
       {
-        path: "/auth/register",
+        path: "/auth/login/register",
         element: <RegisterPage />,
       },
     ],
   },
 ]);
 
-function App() {
+const App = () => {
   return (
     <div className="App">
       <RouterProvider router={router} />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        pauseOnFocusLoss={false}
+        draggable={false}
+      />
     </div>
   );
-}
+};
 
 export default App;

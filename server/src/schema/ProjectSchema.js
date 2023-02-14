@@ -1,14 +1,13 @@
 const mongoose = require("mongoose");
 
-const ProjectSchema = new mongoose(
+const ProjectSchema = new mongoose.Schema(
   {
-    name: {
+    title: {
       type: String,
       required: true,
     },
     desc: {
       type: String,
-      required: true,
     },
     owner: [
       {
@@ -23,15 +22,15 @@ const ProjectSchema = new mongoose(
         ref: "User",
       },
     ],
-    // groupTask: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Group",
-    //   },
-    // ],
+    groupTask: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Group",
+      },
+    ],
   },
   {
-    timestamp: true,
+    timestamps: true,
   }
 );
 

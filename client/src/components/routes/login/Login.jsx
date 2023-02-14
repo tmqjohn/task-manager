@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 // utils
-import { loginUser } from "../../helpers/helper";
+import { loginUser } from "../../api/user";
 
 //components
 import GoogleLogin from "./GoogleLogin";
@@ -10,20 +10,22 @@ import GoogleLogin from "./GoogleLogin";
 import "./styles/login.css";
 
 const LoginPage = () => {
-  const navigate = useNavigate();
-
   const inputUser = useRef();
   const inputPass = useRef();
+  const navigate = useNavigate();
 
-  function submit(e) {
-    loginUser(e, inputUser, inputPass, navigate);
+  async function submit(e) {
+    e.preventDefault();
+
+    const isSuccess = await loginUser(inputUser, inputPass);
+    if (isSuccess) navigate("/");
   }
 
   return (
     <div className="login-page-form">
       <span className="material-symbols-outlined">local_florist</span>
 
-      <h1 className="mt-2 mb-5">Login</h1>
+      <h1 className="mb-5">Login</h1>
 
       <form autoComplete="off" onSubmit={submit}>
         <div className="login form-floating">
@@ -38,7 +40,7 @@ const LoginPage = () => {
           <label htmlFor="floatingInput">Username</label>
         </div>
 
-        <div className="login form-floating">
+        <div className="login form-floating mb-2">
           <input
             type="password"
             className="form-control"
@@ -50,8 +52,12 @@ const LoginPage = () => {
           <label htmlFor="floatingPassword">Password</label>
         </div>
 
+        <Link className="text-decoration-none" to="/">
+          Forgot your password?
+        </Link>
+
         <button
-          className="btn btn-lg btn-primary btn-login w-100 my-3"
+          className="btn btn-lg btn-primary btn-login w-100 my-2"
           type="submit"
         >
           Login
@@ -62,7 +68,7 @@ const LoginPage = () => {
 
       <p className="mt-2 text-center">
         Don't have an account?{" "}
-        <Link className="text-decoration-none" to="/auth/register">
+        <Link className="text-decoration-none" to="/auth/login/register">
           Sign Up
         </Link>
       </p>

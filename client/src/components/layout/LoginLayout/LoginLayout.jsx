@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-import "./styles/loginlayout.css";
+import "../styles/loginlayout.css";
 
 const Login = () => {
   return (

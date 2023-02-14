@@ -5,7 +5,7 @@ import App from "./components/App";
 import "react-toastify/dist/ReactToastify.css";
 
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import "../node_modules/bootstrap/dist/js/bootstrap.min.js";
+import "../node_modules/bootstrap/dist/js/bootstrap.bundle";
 import "./styles/index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 // utils
-import { registerUser } from "../../helpers/helper";
+import { registerUser } from "../../api/user";
 
 //components
 import GoogleLogin from "./GoogleLogin";
@@ -10,8 +10,6 @@ import GoogleLogin from "./GoogleLogin";
 import "./styles/login.css";
 
 const Register = () => {
-  const navigate = useNavigate();
-
   const inputUser = useRef();
   const inputPass = useRef();
   const inputName = useRef();
@@ -24,8 +22,13 @@ const Register = () => {
     inputEmail,
   };
 
-  function submit(e) {
-    registerUser(e, credentials, navigate);
+  const navigate = useNavigate();
+
+  async function submit(e) {
+    e.preventDefault();
+
+    const isSuccess = await registerUser(e, credentials);
+    if (isSuccess) navigate("/auth/login");
   }
 
   return (
