@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
-import { shallow } from "zustand/shallow";
+import React, { useEffect, useRef } from "react";
 
 import { useUserStore } from "../../../store/store";
 import { getUserDetails, updateUser } from "../../api/user";
