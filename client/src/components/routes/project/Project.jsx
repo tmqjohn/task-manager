@@ -13,7 +13,13 @@ const Projects = () => {
   return (
     <>
       <div className="project-title ps-2 pt-2">
-        <h2 className="">{showProject[0]?.title}</h2>
+        <div className="d-flex">
+          <h2 className="">{showProject[0]?.title}</h2>
+          <button className="btn ms-auto">
+            <img src="/project_settings.svg" /> Settings
+          </button>
+        </div>
+
         <p className="text-secondary fs-6">{showProject[0]?.desc}</p>
       </div>
     </>
