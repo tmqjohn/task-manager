@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const GroupSchema = new mongoose.Model(
+const GroupSchema = new mongoose.Schema(
   {
     title: {
       type: String,
