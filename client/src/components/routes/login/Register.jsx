@@ -27,7 +27,7 @@ const Register = () => {
   async function submit(e) {
     e.preventDefault();
 
-    const isSuccess = await registerUser(e, credentials);
+    const isSuccess = await registerUser(credentials);
     if (isSuccess) navigate("/auth/login");
   }
 
