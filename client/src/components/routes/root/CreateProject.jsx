@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +8,7 @@ import { getUserDetails } from "../../api/user";
 import { useProjectStore } from "../../../store/store";
 import { useUserStore } from "../../../store/store";
 
-const CreateProject = () => {
+const CreateProject = ({ clearInputs }) => {
   const { projects, setProject } = useProjectStore((state) => ({
     projects: state.projects,
     setProject: state.setProject,
@@ -28,7 +28,19 @@ const CreateProject = () => {
 
   const navigate = useNavigate();
 
-  async function submitCreate(e) {
+  useEffect(() => {
+    setMembers([]);
+    setMembersId([]);
+    setOwners([]);
+    setOwnersId([]);
+
+    titleInput.current.value = "";
+    descInput.current.value = "";
+    searchMemberInput.current.value = "";
+    searchOwnerInput.current.value = "";
+  }, [clearInputs]);
+
+  async function handleCreate(e) {
     e.preventDefault();
 
     if (!titleInput.current.value) {
@@ -36,22 +48,22 @@ const CreateProject = () => {
       return toast.error("Project title required");
     }
 
-    const projectId = await createProject(
+    const newProject = await createProject(
       titleInput.current.value,
       descInput.current.value,
-      [userDetails._id],
+      [userDetails._id, ...ownersId],
       membersId
     );
 
-    if (projectId) {
-      setProject([...projects, projectId]);
-      navigate(`/project/${projectId._id}`);
+    if (newProject) {
+      setProject([...projects, newProject]);
+      navigate(`/project/${newProject._id}`);
 
       closeButton.current.click();
     }
   }
 
-  async function addUsers(searchInput, users, setUsers, setUsersId) {
+  async function addUsers(searchInput, users, usersId, setUsers, setUsersId) {
     let searchValue = searchInput.current.value;
 
     if (searchValue) {
@@ -98,7 +110,7 @@ const CreateProject = () => {
         searchInput.focus;
 
         setUsers([...users, foundUser.fullName]);
-        setUsersId([...membersId, foundUser._id]);
+        setUsersId([...usersId, foundUser._id]);
       } else {
         searchInput.focus;
 
@@ -109,11 +121,11 @@ const CreateProject = () => {
   }
 
   function addOwner() {
-    addUsers(searchOwnerInput, owners, setOwners, setOwnersId);
+    addUsers(searchOwnerInput, owners, ownersId, setOwners, setOwnersId);
   }
 
   function addMember() {
-    addUsers(searchMemberInput, members, setMembers, setMembersId);
+    addUsers(searchMemberInput, members, membersId, setMembers, setMembersId);
   }
 
   function removeUsers(user, usersId, users, setusers, setUsersId) {
@@ -209,51 +221,55 @@ const CreateProject = () => {
                 autoComplete="off"
               />
             </section>
-            <section>
-              <label htmlFor="project-owners" className="col-form-label">
-                Owners:
-              </label>
-              <div className="d-flex">
-                <input
-                  type="text"
-                  className="form-control me-3"
-                  id="project-owners-search"
-                  placeholder="Search by username"
-                  ref={searchOwnerInput}
-                  autoComplete="off"
-                />
-                <button className="btn ms-auto p-0" onClick={addOwner}>
-                  <img src="/add.svg" />
-                </button>
-              </div>
+            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+              <section>
+                <label htmlFor="project-owners" className="col-form-label">
+                  Owners:
+                </label>
+                <div className="d-flex">
+                  <input
+                    type="text"
+                    className="form-control me-3"
+                    id="project-owners-search"
+                    placeholder="Search by username"
+                    ref={searchOwnerInput}
+                    autoComplete="off"
+                  />
+                  <button className="btn ms-auto p-0" onClick={addOwner}>
+                    <img src="/add.svg" />
+                  </button>
+                </div>
 
-              <ul className="list-group list-group-flush mt-1 mb-0">
-                {owner}
-                {ownerList}
-              </ul>
-            </section>
-            <section>
-              <label htmlFor="project-members" className="col-form-label">
-                Members:
-              </label>
-              <div className="d-flex">
-                <input
-                  type="text"
-                  className="form-control me-3"
-                  id="project-members-search"
-                  placeholder="Search by username"
-                  ref={searchMemberInput}
-                  autoComplete="off"
-                />
-                <button className="btn ms-auto p-0" onClick={addMember}>
-                  <img src="/add.svg" />
-                </button>
-              </div>
+                <ul className="list-group list-group-flush mt-1 mb-0">
+                  {owner}
+                  {ownerList}
+                </ul>
+              </section>
+            </form>
+            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+              <section>
+                <label htmlFor="project-members" className="col-form-label">
+                  Members:
+                </label>
+                <div className="d-flex">
+                  <input
+                    type="text"
+                    className="form-control me-3"
+                    id="project-members-search"
+                    placeholder="Search by username"
+                    ref={searchMemberInput}
+                    autoComplete="off"
+                  />
+                  <button className="btn ms-auto p-0" onClick={addMember}>
+                    <img src="/add.svg" />
+                  </button>
+                </div>
 
-              <ul className="list-group list-group-flush mt-1 mb-0">
-                {memberList}
-              </ul>
-            </section>
+                <ul className="list-group list-group-flush mt-1 mb-0">
+                  {memberList}
+                </ul>
+              </section>
+            </form>
           </div>
           <div className="modal-footer">
             <button
@@ -267,7 +283,7 @@ const CreateProject = () => {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={submitCreate}
+              onClick={handleCreate}
             >
               Create Project
             </button>
