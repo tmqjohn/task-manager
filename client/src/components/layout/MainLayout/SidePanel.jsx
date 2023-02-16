@@ -7,6 +7,8 @@ import CreateProject from "../../routes/root/CreateProject";
 import { getUserProjects } from "../../api/projects";
 import { useProjectStore, useUserStore } from "../../../store/store";
 
+import { getUserId } from "../../api/user";
+
 const SidePanel = () => {
   const userDetails = useUserStore((state) => state.userDetails);
   const { projects, setProject } = useProjectStore(
@@ -19,11 +21,11 @@ const SidePanel = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      setProject(await getUserProjects(userDetails._id));
+      setProject(await getUserProjects(getUserId().userId));
     };
 
     fetchProjects();
-  }, [userDetails._id]);
+  }, []);
 
   let projectList = projects?.map((project, i) => (
     <Link
@@ -39,7 +41,6 @@ const SidePanel = () => {
   return (
     <>
       <section className="side-panel pe-4 flex-grow-0 flex-shrink-0">
-        {/* TODO: populate list with projects, mixed with as owner or as member */}
         <ul className="list-group list-group-flush">
           <Link to="/" className="list-group-item list-group-item-action">
             <img src="/home.svg" />

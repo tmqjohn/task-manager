@@ -99,6 +99,13 @@ export async function getUserDetails(username) {
   }
 }
 
+export function getUserId() {
+  const token = localStorage.getItem("token");
+  let decodedToken = jwtDecode(token);
+
+  return decodedToken;
+}
+
 export async function logoutUser() {
   localStorage.removeItem("token");
 
