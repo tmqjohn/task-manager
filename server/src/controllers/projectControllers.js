@@ -108,9 +108,28 @@ const addProject = asynchHandler(async (req, res) => {
     members,
   });
 
-  await newProject.save();
+  const savedProject = await newProject.save();
 
-  res.json(newProject);
+  const ownerList = await Promise.all(
+    newProject.owner.map(async (owner) => {
+      const ownerName = await User.findById(owner).select("fullName").exec();
+
+      return ownerName;
+    })
+  );
+
+  const memberList = await Promise.all(
+    newProject.members.map(async (member) => {
+      const memberName = await User.findById(member).select("fullName").exec();
+
+      return memberName;
+    })
+  );
+
+  const ownerName = ownerList.map((owner) => owner.fullName);
+  const membersName = memberList.map((member) => member.fullName);
+
+  res.json({ ...savedProject.toObject(), ownerName, membersName });
 });
 
 /**@ PATCH request
