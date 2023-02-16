@@ -1,16 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { shallow } from "zustand/shallow";
 
 import CreateProject from "../../routes/root/CreateProject";
 
 import { getUserProjects } from "../../api/projects";
-import { useProjectStore, useUserStore } from "../../../store/store";
+import { useProjectStore } from "../../../store/store";
 
 import { getUserId } from "../../api/user";
 
 const SidePanel = () => {
-  const userDetails = useUserStore((state) => state.userDetails);
+  const [clearInputs, setClear] = useState(false);
   const { projects, setProject } = useProjectStore(
     (state) => ({
       projects: state.projects,
@@ -38,6 +38,10 @@ const SidePanel = () => {
     </Link>
   ));
 
+  function handleDefault() {
+    setClear((prev) => !prev);
+  }
+
   return (
     <>
       <section className="side-panel pe-4 flex-grow-0 flex-shrink-0">
@@ -53,6 +57,7 @@ const SidePanel = () => {
               className="btn ms-auto p-0"
               data-bs-toggle="modal"
               data-bs-target="#createProjectPrompt"
+              onClick={handleDefault}
             >
               <img src="/add.svg" />
             </button>
@@ -63,7 +68,7 @@ const SidePanel = () => {
       </section>
 
       {/* create project pop-up */}
-      <CreateProject />
+      <CreateProject clearInputs={clearInputs} />
     </>
   );
 };
