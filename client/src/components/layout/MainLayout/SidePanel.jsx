@@ -4,11 +4,11 @@ import { shallow } from "zustand/shallow";
 
 import CreateProject from "../../routes/root/CreateProject";
 
-import { getUserId } from "../../api/user";
 import { getUserProjects } from "../../api/projects";
-import { useProjectStore } from "../../../store/store";
+import { useProjectStore, useUserStore } from "../../../store/store";
 
 const SidePanel = () => {
+  const userDetails = useUserStore((state) => state.userDetails);
   const { projects, setProject } = useProjectStore(
     (state) => ({
       projects: state.projects,
@@ -19,11 +19,11 @@ const SidePanel = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      setProject(await getUserProjects(getUserId(true)));
+      setProject(await getUserProjects(userDetails._id));
     };
 
     fetchProjects();
-  }, []);
+  }, [userDetails._id]);
 
   let projectList = projects?.map((project, i) => (
     <Link

@@ -1,14 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { useProjectStore } from "../../../store/store";
-import { getUserId } from "../../api/user";
+import { useProjectStore, useUserStore } from "../../../store/store";
 
 const Main = () => {
   const projects = useProjectStore((state) => state.projects);
+  const userDetails = useUserStore((state) => state.userDetails);
 
   const projectsOwned = projects?.map((project, i) => {
-    if (project.owner.includes(getUserId(true)))
+    if (project.owner.includes(userDetails._id))
       return (
         <div className="col-2" key={i}>
           <div className="card h-100">
@@ -33,7 +33,7 @@ const Main = () => {
   });
 
   const projectsIn = projects?.map((project, i) => {
-    if (!project.owner.includes(getUserId(true)))
+    if (!project.owner.includes(userDetails._id))
       return (
         <div className="col-2" key={i}>
           <div className="card h-100">
@@ -61,7 +61,9 @@ const Main = () => {
     <>
       {/* /main route */}
       <div className="container-fluid py-2">
-        <h6 className="main-section-title pb-2">Good day, John Rey!</h6>
+        <h6 className="main-section-title pb-2">
+          Good day, {userDetails.fullName}!
+        </h6>
 
         {/* TODO: populate projects owned */}
         <p className="fs-3">Projects You Own</p>

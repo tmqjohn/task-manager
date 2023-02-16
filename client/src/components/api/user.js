@@ -99,18 +99,6 @@ export async function getUserDetails(username) {
   }
 }
 
-export function getUserId(getId) {
-  const token = localStorage.getItem("token");
-  if (!token) return console.log("No Token Found"); //replace with toast
-  let decodedToken = jwtDecode(token);
-
-  if (getId) {
-    return decodedToken.userId;
-  } else {
-    return decodedToken;
-  }
-}
-
 export async function logoutUser() {
   localStorage.removeItem("token");
 

@@ -8,9 +8,11 @@ axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL;
  */
 export async function getUserProjects(id) {
   try {
-    const response = await axios.get(`api/project/user/${id}`);
+    if (id) {
+      const response = await axios.get(`api/project/user/${id}`);
 
-    return response.data;
+      return response.data;
+    }
   } catch (error) {
     console.log(error);
   }
