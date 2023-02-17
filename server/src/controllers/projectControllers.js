@@ -129,7 +129,7 @@ const addProject = asynchHandler(async (req, res) => {
   const ownerName = ownerList.map((owner) => owner.fullName);
   const membersName = memberList.map((member) => member.fullName);
 
-  res.json({ ...savedProject.toObject(), ownerName, membersName });
+  res.status(200).json({ ...savedProject.toObject(), ownerName, membersName });
 });
 
 /**@ PATCH request
@@ -147,8 +147,27 @@ const updateProject = asynchHandler(async (req, res) => {
 
   const result = await foundProject.save();
 
+  const ownerList = await Promise.all(
+    result.owner.map(async (owner) => {
+      const ownerName = await User.findById(owner).select("fullName").exec();
+
+      return ownerName;
+    })
+  );
+
+  const memberList = await Promise.all(
+    result.members.map(async (member) => {
+      const memberName = await User.findById(member).select("fullName").exec();
+
+      return memberName;
+    })
+  );
+
+  const ownerName = ownerList.map((owner) => owner.fullName);
+  const membersName = memberList.map((member) => member.fullName);
+
   if (result === foundProject) {
-    res.status(200).json({ message: "Successfully updated project" });
+    res.status(200).json({ ...result.toObject(), ownerName, membersName });
   } else {
     res
       .status(400)

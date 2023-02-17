@@ -32,9 +32,30 @@ export async function createProject(title, desc, owner, members) {
       members,
     });
 
-    getUserProjects(owner[0]);
-
     return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/**
+ * @POST request
+ * http://serverurl/api/projects/:id
+ */
+
+export async function updateProject(id, title, desc, owner, members) {
+  try {
+    await axios.patch("api/project/", {
+      id,
+      title,
+      desc,
+      owner,
+      members,
+    });
+
+    const response = await getUserProjects(owner[0]);
+
+    return response;
   } catch (error) {
     console.log(error);
   }
