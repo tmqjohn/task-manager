@@ -60,10 +60,9 @@ export async function registerUser(credentials) {
  * @Profile
  * http://serverurl/api/auth/user/
  */
-export async function updateUser(id, email, fullName, password) {
+export async function updateUser(username, email, fullName, password) {
   try {
-    const response = await axios.put("/api/auth/user", {
-      id,
+    const response = await axios.put(`/api/auth/user/${username}`, {
       password: password.current.value,
       email: email.current.value,
       fullName: fullName.current.value,

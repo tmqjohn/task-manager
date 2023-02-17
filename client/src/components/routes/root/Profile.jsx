@@ -22,7 +22,12 @@ const Profile = () => {
   }, []);
 
   async function update() {
-    await updateUser(userDetails._id, emailInput, fullNameInput, passwordInput);
+    await updateUser(
+      userDetails.username,
+      emailInput,
+      fullNameInput,
+      passwordInput
+    );
 
     setUserDetails(await getUserDetails());
 
