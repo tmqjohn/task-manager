@@ -179,9 +179,9 @@ const updateProject = asynchHandler(async (req, res) => {
  * @ deletes a project
  */
 const deleteProject = asynchHandler(async (req, res) => {
-  const { id } = req.body;
+  const { projectId } = req.params;
 
-  const deletedProject = await Project.findByIdAndDelete(id);
+  const deletedProject = await Project.findByIdAndDelete(projectId);
 
   if (deletedProject) {
     res.status(200).json({ message: "Project has been deleted" });
