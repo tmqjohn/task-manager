@@ -60,3 +60,15 @@ export async function updateProject(id, title, desc, owner, members) {
     console.log(error);
   }
 }
+
+export async function deleteProject(id, owner) {
+  try {
+    await axios.delete(`api/project/${id}`);
+
+    const response = await getUserProjects(owner);
+
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -43,6 +43,7 @@ const Projects = () => {
       <ManageProject
         selectedProject={selectedProject}
         projectDefaults={projectDefaults}
+        setProjectDefaults={setProjectDefaults}
       />
     </>
   );

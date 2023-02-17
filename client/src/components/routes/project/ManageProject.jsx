@@ -1,12 +1,17 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import { useUserStore, useProjectStore } from "../../../store/store";
 
 import { getUserDetails } from "../../api/user";
-import { updateProject } from "../../api/projects";
+import { updateProject, deleteProject } from "../../api/projects";
 
-const ManageProject = ({ selectedProject, projectDefaults }) => {
+const ManageProject = ({
+  selectedProject,
+  projectDefaults,
+  setProjectDefaults,
+}) => {
   const userDetails = useUserStore((state) => state.userDetails);
   const setProject = useProjectStore((state) => state.setProject);
 
@@ -21,6 +26,8 @@ const ManageProject = ({ selectedProject, projectDefaults }) => {
   const searchOwnerInput = useRef();
   const closeButton = useRef();
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     titleInput.current.value = selectedProject[0]?.title;
     descInput.current.value = selectedProject[0]?.desc;
@@ -32,31 +39,6 @@ const ManageProject = ({ selectedProject, projectDefaults }) => {
     setMembers(selectedProject[0]?.membersName);
     setMembersId(selectedProject[0]?.members);
   }, [projectDefaults]);
-
-  async function handleEdit(e) {
-    e.preventDefault();
-
-    if (!titleInput.current.value) {
-      toast.dismiss();
-      return toast.error("Project title required");
-    }
-
-    const updatedProjects = await updateProject(
-      selectedProject[0]._id,
-      titleInput.current.value,
-      descInput.current.value,
-      ownersId,
-      membersId
-    );
-
-    if (updatedProjects) {
-      setProject(updatedProjects);
-
-      closeButton.current.click();
-      toast.dismiss();
-      toast.success("Project has been updated successfully!");
-    }
-  }
 
   async function addUsers(searchInput, users, usersId, setUsers, setUsersId) {
     let searchValue = searchInput.current.value;
@@ -175,138 +157,228 @@ const ManageProject = ({ selectedProject, projectDefaults }) => {
     </li>
   ));
 
+  async function handleEdit() {
+    if (!titleInput.current.value) {
+      toast.dismiss();
+      return toast.error("Project title required");
+    }
+
+    const updatedProjects = await updateProject(
+      selectedProject[0]._id,
+      titleInput.current.value,
+      descInput.current.value,
+      ownersId,
+      membersId
+    );
+
+    if (updatedProjects) {
+      setProject(updatedProjects);
+
+      closeButton.current.click();
+      toast.dismiss();
+      toast.success("Project has been updated successfully!");
+    }
+  }
+
+  async function handleDelete() {
+    const updatedProjects = await deleteProject(
+      selectedProject[0]._id,
+      selectedProject[0].owner[0]
+    );
+
+    console.log(selectedProject[0].owner[0]);
+    console.log(updatedProjects);
+
+    if (updatedProjects) {
+      setProject(updatedProjects);
+      navigate("/");
+
+      toast.dismiss();
+      toast.success("Project has been deleted successfully!");
+    }
+  }
+
   return (
-    <div
-      className="modal fade"
-      id="manageProjectPrompt"
-      data-bs-backdrop="static"
-      data-bs-keyboard="false"
-      tabIndex="-1"
-    >
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h1 className="modal-title fs-5">Manage Project</h1>
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
+    <>
+      <div
+        className="modal fade"
+        id="manageProjectPrompt"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabIndex="-1"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5">Manage Project</h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
 
-          <div className="modal-body">
-            <section className="mb-3">
-              <label htmlFor="edit-project-title" className="col-form-label">
-                Title:
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="edit-project-title"
-                ref={titleInput}
-                autoComplete="off"
-              />
-            </section>
-
-            <section className="mb-3">
-              <label
-                htmlFor="edit-project-description"
-                className="col-form-label"
-              >
-                Description:
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="edit-project-description"
-                ref={descInput}
-                autoComplete="off"
-              />
-            </section>
-
-            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <section>
-                <label htmlFor="edit-project-owners" className="col-form-label">
-                  Owners:
+            <div className="modal-body">
+              <section className="mb-3">
+                <label htmlFor="edit-project-title" className="col-form-label">
+                  Title:
                 </label>
-                <div className="d-flex">
-                  <input
-                    type="text"
-                    className="form-control me-3"
-                    id="edit-project-owners-search"
-                    placeholder="Search by username"
-                    ref={searchOwnerInput}
-                    autoComplete="off"
-                  />
-                  <button className="btn ms-auto p-0" onClick={addOwner}>
-                    <img src="/add.svg" />
-                  </button>
-                </div>
-
-                <ul className="list-group list-group-flush mt-1 mb-0">
-                  {ownerList}
-                </ul>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="edit-project-title"
+                  ref={titleInput}
+                  autoComplete="off"
+                />
               </section>
-            </form>
 
-            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <section>
+              <section className="mb-3">
                 <label
-                  htmlFor="edit-project-members"
+                  htmlFor="edit-project-description"
                   className="col-form-label"
                 >
-                  Members:
+                  Description:
                 </label>
-                <div className="d-flex">
-                  <input
-                    type="text"
-                    className="form-control me-3"
-                    id="edit-project-members-search"
-                    placeholder="Search by username"
-                    ref={searchMemberInput}
-                    autoComplete="off"
-                  />
-                  <button className="btn ms-auto p-0" onClick={addMember}>
-                    <img src="/add.svg" />
-                  </button>
-                </div>
-
-                <ul className="list-group list-group-flush mt-1 mb-0">
-                  {memberList}
-                </ul>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="edit-project-description"
+                  ref={descInput}
+                  autoComplete="off"
+                />
               </section>
-            </form>
-          </div>
 
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-danger me-auto"
-              data-bs-dismiss="modal"
-            >
-              Delete Project
-            </button>
+              <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+                <section>
+                  <label
+                    htmlFor="edit-project-owners"
+                    className="col-form-label"
+                  >
+                    Owners:
+                  </label>
+                  <div className="d-flex">
+                    <input
+                      type="text"
+                      className="form-control me-3"
+                      id="edit-project-owners-search"
+                      placeholder="Search by username"
+                      ref={searchOwnerInput}
+                      autoComplete="off"
+                    />
+                    <button className="btn ms-auto p-0" onClick={addOwner}>
+                      <img src="/add.svg" />
+                    </button>
+                  </div>
 
-            <button
-              type="button"
-              className="btn btn-secondary"
-              data-bs-dismiss="modal"
-              ref={closeButton}
-            >
-              Close
-            </button>
+                  <ul className="list-group list-group-flush mt-1 mb-0">
+                    {ownerList}
+                  </ul>
+                </section>
+              </form>
 
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleEdit}
-            >
-              Create Project
-            </button>
+              <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+                <section>
+                  <label
+                    htmlFor="edit-project-members"
+                    className="col-form-label"
+                  >
+                    Members:
+                  </label>
+                  <div className="d-flex">
+                    <input
+                      type="text"
+                      className="form-control me-3"
+                      id="edit-project-members-search"
+                      placeholder="Search by username"
+                      ref={searchMemberInput}
+                      autoComplete="off"
+                    />
+                    <button className="btn ms-auto p-0" onClick={addMember}>
+                      <img src="/add.svg" />
+                    </button>
+                  </div>
+
+                  <ul className="list-group list-group-flush mt-1 mb-0">
+                    {memberList}
+                  </ul>
+                </section>
+              </form>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-danger me-auto"
+                data-bs-target="#confirmDeletePrompt"
+                data-bs-toggle="modal"
+              >
+                Delete Project
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+                ref={closeButton}
+              >
+                Close
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleEdit}
+              >
+                Update
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <div
+        className="modal fade"
+        id="confirmDeletePrompt"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabIndex="-1"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5">
+                Are you sure you want to delete your project?
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div className="modal-body">This action cannot be undone.</div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-target="#manageProjectPrompt"
+                data-bs-toggle="modal"
+                onClick={() => setProjectDefaults((prev) => !prev)}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                data-bs-dismiss="modal"
+                onClick={handleDelete}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

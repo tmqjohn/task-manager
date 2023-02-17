@@ -8,9 +8,10 @@ router
   .route("/")
   .get(projectController.getAllProjects)
   .post(projectController.addProject)
-  .patch(projectController.updateProject)
-  .delete(projectController.deleteProject);
+  .patch(projectController.updateProject);
 
 router.get("/user/:id", projectController.getUserProjects);
+
+router.delete("/:projectId", projectController.deleteProject);
 
 module.exports = router;
