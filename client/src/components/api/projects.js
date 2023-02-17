@@ -20,7 +20,7 @@ export async function getUserProjects(id) {
 
 /**
  * @POST request
- * http://serverurl/api/projects/:id
+ * http://serverurl/api/projects/
  */
 
 export async function createProject(title, desc, owner, members) {
@@ -39,14 +39,13 @@ export async function createProject(title, desc, owner, members) {
 }
 
 /**
- * @POST request
- * http://serverurl/api/projects/:id
+ * @PATCH request
+ * http://serverurl/api/projects/:projectId
  */
 
 export async function updateProject(id, title, desc, owner, members) {
   try {
-    await axios.patch("api/project/", {
-      id,
+    await axios.patch(`api/project/${id}`, {
       title,
       desc,
       owner,
@@ -61,6 +60,10 @@ export async function updateProject(id, title, desc, owner, members) {
   }
 }
 
+/**
+ * @DELETE request
+ * http://serverurl/api/projects/:projectId
+ */
 export async function deleteProject(id, owner) {
   try {
     await axios.delete(`api/project/${id}`);

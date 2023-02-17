@@ -4,7 +4,8 @@ const Project = require("../schema/ProjectSchema");
 const User = require("../schema/UserSchema");
 
 /**@ GET request
- * @ gets all the projects
+ * gets all the projects
+ * /api/projects
  * TODO: insert group tasks
  */
 const getAllProjects = asynchHandler(async (req, res) => {
@@ -47,7 +48,8 @@ const getAllProjects = asynchHandler(async (req, res) => {
 });
 
 /**@ GET request
- * @ gets all the user's projects
+ * gets all the specific user's projects
+ * /api/projects/user/:id
  * TODO: insert group tasks
  */
 const getUserProjects = asynchHandler(async (req, res) => {
@@ -96,7 +98,8 @@ const getUserProjects = asynchHandler(async (req, res) => {
 });
 
 /**@ POST request
- * @ create new project
+ * create new project
+ * /api/projects
  */
 const addProject = asynchHandler(async (req, res) => {
   const { title, desc, owner, members } = req.body;
@@ -133,12 +136,14 @@ const addProject = asynchHandler(async (req, res) => {
 });
 
 /**@ PATCH request
- * @ edit project
+ * edit project
+ * /api/projects/:projectId
  */
 const updateProject = asynchHandler(async (req, res) => {
-  const { id, title, desc, owner, members } = req.body;
+  const { title, desc, owner, members } = req.body;
+  const { projectId } = req.params;
 
-  const foundProject = await Project.findById(id);
+  const foundProject = await Project.findById(projectId);
 
   foundProject.title = title;
   foundProject.desc = desc;
@@ -176,7 +181,8 @@ const updateProject = asynchHandler(async (req, res) => {
 });
 
 /**@ DELETE request
- * @ deletes a project
+ * deletes a project
+ * /api/projects/:projectId
  */
 const deleteProject = asynchHandler(async (req, res) => {
   const { projectId } = req.params;
