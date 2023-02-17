@@ -60,6 +60,8 @@ const CreateProject = ({ clearInputs }) => {
       navigate(`/project/${newProject._id}`);
 
       closeButton.current.click();
+      toast.dismiss();
+      toast.success("Project has been created successfully!");
     }
   }
 
