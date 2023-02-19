@@ -1,11 +1,15 @@
 const asyncHandler = require("express-async-handler");
+const otpGenerator = require("otp-generator");
 const jwt = require("jsonwebtoken");
+
 const { checkPassword, hashPassword } = require("../helpers/password");
+const initMail = require("../helpers/mailer");
 
 const User = require("../schema/UserSchema");
 
 /**@ GET request
- * @ get all the users
+ * get all the users
+ * /api/auth/user
  */
 const getAllUsers = asyncHandler(async (req, res) => {
   const foundUsers = await User.find().select("-password").lean().exec();
@@ -19,6 +23,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
 /**@ GET request
  * @ get specific user details
+ * /api/auth/user/:username
  */
 const getUser = asyncHandler(async (req, res) => {
   const { username } = req.params;
@@ -40,6 +45,7 @@ const getUser = asyncHandler(async (req, res) => {
 
 /**@ POST request
  * @ login user with JWT token
+ * /api/auth/login
  */
 const loginUser = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
@@ -76,6 +82,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 /**@ POST request
  * @ register new user
+ * /api/auth/register
  */
 const registerNewUser = asyncHandler(async (req, res) => {
   const { username, password, fullName, email } = req.body;
@@ -103,11 +110,13 @@ const registerNewUser = asyncHandler(async (req, res) => {
 
 /**@ PUT request
  * @ edit user details
+ * /api/auth/:username
  */
 const updateUser = asyncHandler(async (req, res) => {
-  const { id, password, email, fullName } = req.body;
+  const { password, email, fullName } = req.body;
+  const { username } = req.params;
 
-  const foundUser = await User.findById(id).exec();
+  const foundUser = await User.findOne({ username }).exec();
 
   if (password) {
     foundUser.password = hashPassword(password);
@@ -125,10 +134,83 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 });
 
+/**@ POST request
+ * @ generate OTP
+ * /api/auth/recovery/generateOTP
+ */
+const generateOtp = asyncHandler(async (req, res) => {
+  const { username } = req.body;
+
+  const foundUser = await User.findOne({ username }).exec();
+
+  if (!foundUser) {
+    return res.status(404).json({ message: "User Not Found" });
+  }
+
+  req.app.locals.OTP = otpGenerator.generate(6, {
+    upperCaseAlphabets: false,
+    lowerCaseAlphabets: false,
+    specialChars: false,
+  });
+
+  req.app.locals.resetSession = false;
+
+  initMail(username, req.app.locals.OTP, foundUser.email);
+
+  return res.status(200).send({ code: req.app.locals.OTP });
+});
+
+/**@ POST request
+ * @ verify OTP
+ * /api/auth/recover/verifyOTP
+ */
+const verifyOtp = asyncHandler(async (req, res) => {
+  const { code } = req.body;
+
+  if (parseInt(code) != parseInt(req.app.locals.OTP)) {
+    return res.status(400).send({ message: "Invalid OTP" });
+  }
+
+  req.app.locals.OTP = null;
+  req.app.locals.resetSession = true;
+
+  return res.status(200).send({ message: "Verification successful!" });
+});
+
+/**@ PUT request
+ * reset password
+ * /api/auth/resetPassword/:username
+ */
+const resetPassword = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+  const { username } = req.params;
+
+  const foundUser = await User.findOne({ username })
+    .select([, "-createdAt", "-updatedAt", "-email", "-username", "-fullName"])
+    .exec();
+
+  foundUser.password = hashPassword(password);
+
+  const result = await foundUser.save();
+
+  if (result === foundUser) {
+    req.app.locals.resetSession = false;
+
+    return res.status(200).json({ message: "Password successfully reset" });
+  } else {
+    return res
+      .status(400)
+      .json({ message: "There was error resetting user's password" });
+  }
+});
+
 module.exports = {
   getAllUsers,
   getUser,
   loginUser,
   registerNewUser,
   updateUser,
+  generateOtp,
+  verifyOtp,
+  resetPassword,
 };
