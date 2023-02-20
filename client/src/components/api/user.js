@@ -22,9 +22,7 @@ export async function loginUser(usernameInput, password) {
     return true;
   } catch (error) {
     toast.dismiss();
-    toast.error(
-      error.response ? error.response.data.message : console.log(error.message)
-    );
+    toast.error(error.response ? error.response.data.message : error.message);
   }
 }
 
@@ -37,16 +35,12 @@ export async function registerUser(credentials) {
   const { inputUser, inputPass, inputName, inputEmail } = credentials;
 
   try {
-    const response = await axios.post("/api/auth/user/register", {
+    await axios.post("/api/auth/user/register", {
       username: inputUser.current.value,
       password: inputPass.current.value,
       fullName: inputName.current.value,
       email: inputEmail.current.value,
     });
-
-    toast.dismiss();
-    toast.success("Registration successful!");
-    toast.success("Try logging into your account");
 
     return true;
   } catch (error) {
@@ -62,16 +56,16 @@ export async function registerUser(credentials) {
  */
 export async function updateUser(username, email, fullName, password) {
   try {
-    const response = await axios.put(`/api/auth/user/${username}`, {
+    await axios.put(`/api/auth/user/${username}`, {
       password: password.current.value,
       email: email.current.value,
       fullName: fullName.current.value,
     });
 
-    toast.dismiss();
-    toast.success("Profile updated successfully!");
+    return true;
   } catch (error) {
-    console.log(error);
+    toast.dismiss();
+    toast.error(error.response ? error.response.data.message : error.message);
   }
 }
 
@@ -92,9 +86,7 @@ export async function getUserDetails(username) {
     return response.data;
   } catch (error) {
     toast.dismiss();
-    toast.error(
-      error.response ? error.response.data.message : console.log(error.message)
-    );
+    toast.error(error.response ? error.response.data.message : error.message);
   }
 }
 

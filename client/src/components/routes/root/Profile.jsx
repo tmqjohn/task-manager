@@ -22,16 +22,21 @@ const Profile = () => {
   }, []);
 
   async function update() {
-    await updateUser(
+    const isSuccess = await updateUser(
       userDetails.username,
       emailInput,
       fullNameInput,
       passwordInput
     );
 
-    setUserDetails(await getUserDetails());
+    if (isSuccess) {
+      setUserDetails(await getUserDetails());
 
-    passwordInput.current.value = "";
+      passwordInput.current.value = "";
+
+      toast.dismiss();
+      toast.success("Profile updated successfully!");
+    }
   }
 
   return (

@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 // utils
 import { registerUser } from "../../api/user";
@@ -28,7 +29,14 @@ const Register = () => {
     e.preventDefault();
 
     const isSuccess = await registerUser(credentials);
-    if (isSuccess) navigate("/auth/login");
+
+    if (isSuccess) {
+      toast.dismiss();
+      toast.success("Registration successful!");
+      toast.success("Try logging into your account");
+
+      navigate("/auth/login");
+    }
   }
 
   return (
@@ -37,7 +45,7 @@ const Register = () => {
         <span className="text-muted material-symbols-outlined">arrow_back</span>
       </Link>
 
-      <h1 className="my-2">Register</h1>
+      <h1 className="mb-3">Register</h1>
 
       <form autoComplete="off" onSubmit={submit}>
         <div className="full-name form-floating">
