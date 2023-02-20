@@ -34,6 +34,13 @@ const getAllProjects = asynchHandler(async (req, res) => {
         })
       );
 
+      const groupsList = await Promise.all(
+        project.groups.map(async (group) => {
+          return await Group.findById(group).select();
+        })
+      );
+
+      const groupDetails = groupsList.map((group) => group);
       const ownerName = ownerList.map((owner) => owner.fullName);
       const membersName = memberList.map((member) => member.fullName);
 
@@ -41,6 +48,7 @@ const getAllProjects = asynchHandler(async (req, res) => {
         ...project,
         ownerName,
         membersName,
+        groupDetails,
       };
     })
   );
@@ -84,6 +92,13 @@ const getUserProjects = asynchHandler(async (req, res) => {
         })
       );
 
+      const groupsList = await Promise.all(
+        project.groups.map(async (group) => {
+          return await Group.findById(group).select();
+        })
+      );
+
+      const groupDetails = groupsList.map((group) => group);
       const ownerName = ownerList.map((owner) => owner.fullName);
       const membersName = memberList.map((member) => member.fullName);
 
@@ -91,6 +106,7 @@ const getUserProjects = asynchHandler(async (req, res) => {
         ...project,
         ownerName,
         membersName,
+        groupDetails,
       };
     })
   );
@@ -169,11 +185,20 @@ const updateProject = asynchHandler(async (req, res) => {
     })
   );
 
+  const groupsList = await Promise.all(
+    result.groups.map(async (group) => {
+      return await Group.findById(group).select();
+    })
+  );
+
+  const groupDetails = groupsList.map((group) => group);
   const ownerName = ownerList.map((owner) => owner.fullName);
   const membersName = memberList.map((member) => member.fullName);
 
   if (result === foundProject) {
-    res.status(200).json({ ...result.toObject(), ownerName, membersName });
+    res
+      .status(200)
+      .json({ ...result.toObject(), ownerName, membersName, groupDetails });
   } else {
     res
       .status(400)
@@ -207,7 +232,9 @@ const updateProjectGroups = asynchHandler(async (req, res) => {
   const { groups } = req.body;
   const { projectId } = req.params;
 
-  const foundProject = await Project.findById(projectId).select("groups");
+  const foundProject = await Project.findById(projectId)
+    .select("groups")
+    .exec();
 
   foundProject.groups = groups;
 
@@ -215,14 +242,14 @@ const updateProjectGroups = asynchHandler(async (req, res) => {
 
   const groupsList = await Promise.all(
     result.groups.map(async (group) => {
-      return await Group.findById(group);
+      return await Group.findById(group).select();
     })
   );
 
-  const groupTitle = groupsList.map((group) => group.title);
+  const groupDetails = groupsList.map((group) => group);
 
   if (result === foundProject) {
-    res.status(200).json({ ...result.toObject(), groupTitle });
+    res.status(200).json({ ...result.toObject(), groupDetails });
   } else {
     res
       .status(400)
