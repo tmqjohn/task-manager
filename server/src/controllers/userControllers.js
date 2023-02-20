@@ -136,7 +136,7 @@ const updateUser = asyncHandler(async (req, res) => {
 
 /**@ POST request
  * @ generate OTP
- * /api/auth/recovery/generateOTP
+ * /api/auth/user/recovery/generateOTP
  */
 const generateOtp = asyncHandler(async (req, res) => {
   const { username } = req.body;
@@ -144,7 +144,7 @@ const generateOtp = asyncHandler(async (req, res) => {
   const foundUser = await User.findOne({ username }).exec();
 
   if (!foundUser) {
-    return res.status(404).json({ message: "User Not Found" });
+    return res.status(404).json({ message: "Username Not Found" });
   }
 
   req.app.locals.OTP = otpGenerator.generate(6, {
@@ -162,24 +162,24 @@ const generateOtp = asyncHandler(async (req, res) => {
 
 /**@ POST request
  * @ verify OTP
- * /api/auth/recover/verifyOTP
+ * /api/auth/user/recover/verifyOTP
  */
 const verifyOtp = asyncHandler(async (req, res) => {
   const { code } = req.body;
 
   if (parseInt(code) != parseInt(req.app.locals.OTP)) {
-    return res.status(400).send({ message: "Invalid OTP" });
+    return res.status(400).send({ message: "Invalid Code" });
   }
 
   req.app.locals.OTP = null;
   req.app.locals.resetSession = true;
 
-  return res.status(200).send({ message: "Verification successful!" });
+  return res.status(200).send({ message: "Code verification successful!" });
 });
 
 /**@ PUT request
  * reset password
- * /api/auth/resetPassword/:username
+ * /api/auth/user/resetPassword/:username
  */
 const resetPassword = asyncHandler(async (req, res) => {
   const { password } = req.body;
@@ -189,6 +189,14 @@ const resetPassword = asyncHandler(async (req, res) => {
     .select([, "-createdAt", "-updatedAt", "-email", "-username", "-fullName"])
     .exec();
 
+  const verifiedPassword = await checkPassword(password, foundUser.password);
+
+  if (verifiedPassword) {
+    return res.status(400).json({
+      message: "You already used this password once. Please try a new password",
+    });
+  }
+
   foundUser.password = hashPassword(password);
 
   const result = await foundUser.save();
@@ -196,7 +204,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   if (result === foundUser) {
     req.app.locals.resetSession = false;
 
-    return res.status(200).json({ message: "Password successfully reset" });
+    return res.status(200).json({ message: "Password successfully reset!" });
   } else {
     return res
       .status(400)

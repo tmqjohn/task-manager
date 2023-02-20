@@ -5,8 +5,6 @@ const resetSession = asyncHandler(async (req, res, next) => {
     return res.status(400).send({ message: "Session Expired" });
   }
 
-  req.app.locals.resetSession = false;
-
   next();
 });
 
