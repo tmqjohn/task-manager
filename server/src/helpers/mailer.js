@@ -3,12 +3,10 @@ const Mailgen = require("mailgen");
 
 async function initMail(username, code, email) {
   let transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    service: "gmail",
     auth: {
-      user: process.env.MAILER_EMAIL, // generated ethereal user
-      pass: process.env.MAILER_PASSWORD, // generated ethereal password
+      user: process.env.MAILER_EMAIL,
+      pass: process.env.MAILER_PASSWORD,
     },
   });
 

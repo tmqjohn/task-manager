@@ -157,7 +157,7 @@ const generateOtp = asyncHandler(async (req, res) => {
 
   initMail(username, req.app.locals.OTP, foundUser.email);
 
-  return res.status(200).send({ code: req.app.locals.OTP });
+  return res.status(200).send({ message: "Code has been sent to your email!" });
 });
 
 /**@ POST request
