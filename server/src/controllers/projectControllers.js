@@ -2,6 +2,7 @@ const asynchHandler = require("express-async-handler");
 
 const Project = require("../schema/ProjectSchema");
 const User = require("../schema/UserSchema");
+const Group = require("../schema/GroupSchema");
 
 /**@ GET request
  * gets all the projects
@@ -44,7 +45,7 @@ const getAllProjects = asynchHandler(async (req, res) => {
     })
   );
 
-  res.json(projectDetails);
+  res.status(200).json(projectDetails);
 });
 
 /**@ GET request
@@ -198,10 +199,42 @@ const deleteProject = asynchHandler(async (req, res) => {
   }
 });
 
+/**@ PATCH request
+ * edit project
+ * /api/projects/:projectId
+ */
+const updateProjectGroups = asynchHandler(async (req, res) => {
+  const { groups } = req.body;
+  const { projectId } = req.params;
+
+  const foundProject = await Project.findById(projectId).select("groups");
+
+  foundProject.groups = groups;
+
+  const result = await foundProject.save();
+
+  const groupsList = await Promise.all(
+    result.groups.map(async (group) => {
+      return await Group.findById(group);
+    })
+  );
+
+  const groupTitle = groupsList.map((group) => group.title);
+
+  if (result === foundProject) {
+    res.status(200).json({ ...result.toObject(), groupTitle });
+  } else {
+    res
+      .status(400)
+      .json({ message: "There was an error updating the project" });
+  }
+});
+
 module.exports = {
   getAllProjects,
   getUserProjects,
   addProject,
   updateProject,
   deleteProject,
+  updateProjectGroups,
 };

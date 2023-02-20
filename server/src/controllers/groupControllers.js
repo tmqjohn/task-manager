@@ -2,31 +2,67 @@ const asyncHandler = require("express-async-handler");
 const Group = require("../schema/GroupSchema");
 
 /**@ GET request
- * @ gets all the groups
+ * gets all the groups
+ * /api/group
  */
 const getAllGroups = asyncHandler(async (req, res) => {
-  res.send("@GET request");
+  const foundGroups = await Group.find().lean();
+
+  res.status(200).json(foundGroups);
 });
 
 /**@ POST request
- * @ create new group
+ * create new group
+ * /api/group
  */
 const addNewGroup = asyncHandler(async (req, res) => {
-  res.send("@POST request");
+  const { title } = req.body;
+
+  const newGroup = new Group({
+    title,
+  });
+
+  const savedGroup = await newGroup.save();
+
+  res.status(200).json(savedGroup);
 });
 
 /**@ PUT request
- * @ edit and update group
+ * edit and update group
+ * /api/group
  */
 const updateGroup = asyncHandler(async (req, res) => {
-  res.send("@PUT request");
+  const { title, tasks } = req.body;
+  const { groupId } = req.params;
+
+  const foundGroup = await Group.findById(groupId).exec();
+
+  foundGroup.title = title;
+  foundGroup.tasks = tasks;
+
+  const result = await foundGroup.save();
+
+  if (result === foundGroup) {
+    res.status(200).json(result.toObject());
+  } else {
+    res.status(400).json({ message: "There was an error updating the group" });
+  }
 });
 
 /**@ DELETE request
- * @ delete a request
+ * delete a request
+ * /api/group
  */
 const deleteGroup = asyncHandler(async (req, res) => {
-  res.send("@DELETE request");
+  const { groupId } = req.params;
+
+  const deletedGroup = await Group.findByIdAndDelete(groupId);
+
+  if (deletedGroup) {
+    res.status(200).json({ message: "Group has been deleted" });
+  } else {
+    res.status(400).json({ message: "There was an error deleting the group" });
+  }
 });
 
 module.exports = {

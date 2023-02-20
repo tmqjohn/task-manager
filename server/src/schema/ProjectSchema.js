@@ -22,7 +22,7 @@ const ProjectSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    groupTask: [
+    groups: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Group",
