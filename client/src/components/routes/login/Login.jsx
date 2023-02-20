@@ -52,7 +52,7 @@ const LoginPage = () => {
           <label htmlFor="floatingPassword">Password</label>
         </div>
 
-        <Link className="text-decoration-none" to="/">
+        <Link className="text-decoration-none" to="/auth/login/username">
           Forgot your password?
         </Link>
 

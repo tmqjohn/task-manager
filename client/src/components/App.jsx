@@ -7,6 +7,9 @@ import ErrorPage from "./error/ErrorPage";
 import LoginLayout from "./layout/LoginLayout/LoginLayout";
 import LoginPage from "./routes/login/Login";
 import RegisterPage from "./routes/login/Register";
+import Username from "./routes/login/PasswordReset/Username";
+import OTP from "./routes/login/PasswordReset/Code";
+import Reset from "./routes/login/PasswordReset/Reset";
 
 // components: main page
 import MainLayout from "./layout/MainLayout/MainLayout";
@@ -51,6 +54,18 @@ const router = createBrowserRouter([
       {
         path: "/auth/login/register",
         element: <RegisterPage />,
+      },
+      {
+        path: "/auth/login/username",
+        element: <Username />,
+      },
+      {
+        path: "/auth/login/otp/:username",
+        element: <OTP />,
+      },
+      {
+        path: "/auth/login/passwordreset/:username",
+        element: <Reset />,
       },
     ],
   },
