@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import ManageProject from "./ManageProject";
-
 import { useProjectStore, useUserStore } from "../../../store/store";
+
+import ManageProject from "./ManageProject";
+import Group from "./Group";
 
 const Projects = () => {
   const projects = useProjectStore((state) => state.projects);
@@ -39,14 +40,16 @@ const Projects = () => {
 
   return (
     <>
-      <div className="project-title ps-2 pt-2">
-        <div className="d-flex">
+      <section className="project-title py-2">
+        <div className="settings-divider d-flex">
           <h2 className="">{selectedProject[0]?.title}</h2>
           {manageBtn}
         </div>
 
-        <p className="text-secondary fs-6">{selectedProject[0]?.desc}</p>
-      </div>
+        <p className="text-secondary m-0 fs-6">{selectedProject[0]?.desc}</p>
+      </section>
+
+      <Group selectedProject={selectedProject} userDetails={userDetails} />
 
       <ManageProject
         selectedProject={selectedProject}
