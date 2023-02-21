@@ -6,8 +6,7 @@ const Group = require("../schema/GroupSchema");
 
 /**@ GET request
  * gets all the projects
- * /api/projects
- * TODO: insert group tasks
+ * /api/project
  */
 const getAllProjects = asynchHandler(async (req, res) => {
   const projects = await Project.find().lean();
@@ -58,8 +57,7 @@ const getAllProjects = asynchHandler(async (req, res) => {
 
 /**@ GET request
  * gets all the specific user's projects
- * /api/projects/user/:id
- * TODO: insert group tasks
+ * /api/project/user/:id
  */
 const getUserProjects = asynchHandler(async (req, res) => {
   const { id } = req.params;
@@ -116,7 +114,7 @@ const getUserProjects = asynchHandler(async (req, res) => {
 
 /**@ POST request
  * create new project
- * /api/projects
+ * /api/project
  */
 const addProject = asynchHandler(async (req, res) => {
   const { title, desc, owner, members } = req.body;
@@ -146,10 +144,14 @@ const addProject = asynchHandler(async (req, res) => {
     })
   );
 
+  const groupDetails = [];
+
   const ownerName = ownerList.map((owner) => owner.fullName);
   const membersName = memberList.map((member) => member.fullName);
 
-  res.status(200).json({ ...savedProject.toObject(), ownerName, membersName });
+  res
+    .status(200)
+    .json({ ...savedProject.toObject(), ownerName, membersName, groupDetails });
 });
 
 /**@ PATCH request
@@ -225,35 +227,54 @@ const deleteProject = asynchHandler(async (req, res) => {
 });
 
 /**@ PATCH request
- * edit project
- * /api/projects/:projectId
+ * add new project groups
+ * /api/project/groups/add
  */
-const updateProjectGroups = asynchHandler(async (req, res) => {
-  const { groups } = req.body;
+const addProjectGroup = asynchHandler(async (req, res) => {
+  // const { groups } = req.body;
+  // const { projectId } = req.params;
+
+  const { projectId, groups } = req.body;
+
+  const foundProject = await Project.findById(projectId)
+    .select("groups")
+    .exec();
+
+  foundProject.groups = [...foundProject.groups, groups];
+
+  const result = await foundProject.save();
+
+  if (result === foundProject) {
+    res.status(200).json({ message: "Group has been added successfully" });
+  } else {
+    res
+      .status(400)
+      .json({ message: "There was an error updating the project" });
+  }
+});
+
+/**@ PATCH request
+ * delete project group
+ * /api/project/groups/delete/:projectId
+ */
+const deleteProjectGroup = asynchHandler(async (req, res) => {
+  const { groupId } = req.body;
   const { projectId } = req.params;
 
   const foundProject = await Project.findById(projectId)
     .select("groups")
     .exec();
 
-  foundProject.groups = groups;
+  foundProject.groups = foundProject.groups.filter((group) => group != groupId);
 
   const result = await foundProject.save();
 
-  const groupsList = await Promise.all(
-    result.groups.map(async (group) => {
-      return await Group.findById(group).select();
-    })
-  );
-
-  const groupDetails = groupsList.map((group) => group);
-
   if (result === foundProject) {
-    res.status(200).json({ ...result.toObject(), groupDetails });
+    res.status(200).json({ message: "Group removed successfully" });
   } else {
     res
       .status(400)
-      .json({ message: "There was an error updating the project" });
+      .json({ message: "There was an error deleting the project" });
   }
 });
 
@@ -263,5 +284,6 @@ module.exports = {
   addProject,
   updateProject,
   deleteProject,
-  updateProjectGroups,
+  addProjectGroup,
+  deleteProjectGroup,
 };
