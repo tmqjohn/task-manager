@@ -21,7 +21,7 @@ const MainLayout = () => {
         <SidePanel />
 
         {/* main panel / right panel */}
-        <section className="main-panel flex-fill">
+        <section className="main-panel d-flex flex-column flex-fill">
           <Outlet />
         </section>
       </div>
