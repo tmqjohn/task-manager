@@ -18,6 +18,10 @@ router
 
 router.route("/user/:id").get(projectController.getUserProjects); //gets all the projects for a specific user
 
-router.route("/groups/:projectId").patch(projectController.updateProjectGroups); // updates only the groups in the projects
+router.route("/groups/add").patch(projectController.addProjectGroup); // add group in a project
+
+router
+  .route("/groups/delete/:projectId")
+  .patch(projectController.deleteProjectGroup);
 
 module.exports = router;
