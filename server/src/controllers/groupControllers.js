@@ -32,13 +32,12 @@ const addNewGroup = asyncHandler(async (req, res) => {
  * /api/group
  */
 const updateGroup = asyncHandler(async (req, res) => {
-  const { title, tasks } = req.body;
+  const { title } = req.body;
   const { groupId } = req.params;
 
   const foundGroup = await Group.findById(groupId).exec();
 
   foundGroup.title = title;
-  foundGroup.tasks = tasks;
 
   const result = await foundGroup.save();
 
