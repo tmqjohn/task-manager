@@ -66,17 +66,17 @@ const Main = () => {
         </h6>
 
         {/* TODO: populate projects owned */}
-        <p className="fs-3">Projects You Own</p>
+        <h2>Projects You Manage</h2>
 
         <div className="owned-projects container-fluid">
-          <div className="row g-3">{projectsOwned}</div>
+          <div className="row mt-1 g-3">{projectsOwned}</div>
         </div>
 
         {/* TODO: populate projects you're member */}
-        <p className="fs-3 mt-3">Projects You're In</p>
 
-        <div className="in-projects container-fluid">
-          <div className="row g-3">{projectsIn}</div>
+        <div className="in-projects mt-3 container-fluid">
+          <h2>Projects You're In</h2>
+          <div className="row mt-1 g-3">{projectsIn}</div>
         </div>
       </div>
     </>
