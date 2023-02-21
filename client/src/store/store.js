@@ -11,7 +11,5 @@ export const useUserStore = create((set, get) => ({
 
 export const useProjectStore = create((set, get) => ({
   projects: [],
-  projectRefresh: false,
   setProject: (data) => set({ projects: data }),
-  clearProjects: () => set({ projects: [] }),
 }));
