@@ -1,14 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { shallow } from "zustand/shallow";
-
-import Profile from "../../routes/root/Profile";
 
 import { logoutUser } from "../../api/user";
 import { useUserStore } from "../../../store/store";
 
+import Profile from "../../routes/root/Profile";
+
 const Navbar = () => {
-  const navigate = useNavigate();
   const { userDetails, clearUserDetails } = useUserStore(
     (state) => ({
       userDetails: state.userDetails,
@@ -16,6 +15,11 @@ const Navbar = () => {
     }),
     shallow
   );
+
+  const navigate = useNavigate();
+
+  const [defaultProfileInputs, setDefaultProfileInputs] = useState(false);
+
   function logout() {
     logoutUser();
     clearUserDetails();
@@ -38,14 +42,6 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarDropdown">
           <ul className="navbar-nav ms-auto">
-            {/* <li className="nav-item"> */}
-            {/* TODO: replace word with image for notifications panel */}
-            {/* <a className="nav-link" href="#footer"> */}
-            {/* Notifications */}
-            {/* </a> */}
-            {/* </li> */}
-
-            {/* drop down for logout and profile */}
             <div className="dropdown dropstart">
               <button
                 className="btn dropdown-toggle"
@@ -55,12 +51,12 @@ const Navbar = () => {
                 Hi, {userDetails?.fullName}!
               </button>
               <ul className="dropdown-menu dropdown-menu-start w-10">
-                {/* TODO: insert offcanvas for profile viewing */}
                 <li>
                   <button
                     className="btn dropdown-item"
                     data-bs-toggle="modal"
                     data-bs-target="#profilePrompt"
+                    onClick={() => setDefaultProfileInputs((prev) => !prev)}
                   >
                     Profile
                   </button>
@@ -78,7 +74,7 @@ const Navbar = () => {
       </nav>
 
       {/* profile pop-up */}
-      <Profile />
+      <Profile defaultProfileInputs={defaultProfileInputs} />
     </>
   );
 };
