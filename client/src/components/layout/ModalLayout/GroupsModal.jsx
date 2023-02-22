@@ -27,9 +27,9 @@ const GroupsModal = ({
               data-bs-dismiss="modal"
             ></button>
           </div>
-          <form autoComplete="false" onSubmit={(e) => e.preventDefault()}>
+          <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
             <div className="modal-body">
-              <label htmlFor={inputTitleRef} className="col-form-label">
+              <label htmlFor={inputId} className="col-form-label">
                 Title:
               </label>
               <input
