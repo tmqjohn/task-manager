@@ -7,10 +7,10 @@ axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL;
  * @POST request
  * http://serverurl/api/group
  */
-export async function addNewGroup(projectId) {
+export async function addNewGroup(projectId, title) {
   try {
     const groups = await axios.post("/api/group", {
-      title: "New Group",
+      title: title,
     });
 
     await axios.patch("/api/project/groups/add", {

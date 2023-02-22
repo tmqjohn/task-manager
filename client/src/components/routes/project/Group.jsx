@@ -7,6 +7,9 @@ import { useProjectStore } from "../../../store/store";
 import { addNewGroup, updateGroup, deleteGroup } from "../../api/group";
 import { getUserProjects } from "../../api/projects";
 
+import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
+import GroupsModal from "../../layout/ModalLayout/GroupsModal";
+
 const Group = ({ selectedProject, userDetails }) => {
   const setProject = useProjectStore((state) => state.setProject);
 
@@ -17,20 +20,26 @@ const Group = ({ selectedProject, userDetails }) => {
 
   const { projectId } = useParams();
 
-  const groupTitleInput = useRef();
-  const closeBtn = useRef();
+  const groupTitleNewInput = useRef();
+  const groupTitleEditInput = useRef();
+  const closeEditBtn = useRef();
+  const closeNewBtn = useRef();
 
   useEffect(() => {
     setAddGroupBtn(
       selectedProject[0]?.owner.includes(userDetails?._id) ? (
-        <section className="control-buttons d-flex w-25">
-          <button
-            className="btn btn-primary p-1 ms-1 mb-2"
-            onClick={handleAddGroup}
-          >
-            <img src="/group_add.svg" /> Add Group
-          </button>
-        </section>
+        <>
+          <section className="control-buttons d-flex w-25">
+            <button
+              className="btn btn-primary p-1 ms-1 mb-2"
+              data-bs-target="#addGroupPrompt"
+              data-bs-toggle="modal"
+              onClick={handleShowGroupAdd}
+            >
+              <img src="/group_add.svg" /> Add Group
+            </button>
+          </section>
+        </>
       ) : null
     );
 
@@ -49,7 +58,7 @@ const Group = ({ selectedProject, userDetails }) => {
                   <li>
                     <button
                       className="btn dropdown-item"
-                      data-bs-target="#editGroupTitle"
+                      data-bs-target="#editGroupTitlePrompt"
                       data-bs-toggle="modal"
                       onClick={() =>
                         handleShowGroupEdit(group?.title, group?._id)
@@ -61,7 +70,8 @@ const Group = ({ selectedProject, userDetails }) => {
                   <li>
                     <button
                       className="btn dropdown-item"
-                      onClick={() => handleRemoveGroup(group?._id)}
+                      data-bs-target="#confirmDeleteGroupPrompt"
+                      data-bs-toggle="modal"
                     >
                       Remove Group
                     </button>
@@ -100,35 +110,51 @@ const Group = ({ selectedProject, userDetails }) => {
               </tr>
             </tbody>
           </table>
+
+          <ConfirmModal
+            id="confirmDeleteGroupPrompt"
+            title="Are you sure you want to delete this group?"
+            body="This action cannot be undone."
+            submitFunction={async () => await handleRemoveGroup(group?._id)}
+          />
         </article>
       ))
     );
   }, [selectedProject]);
 
+  function handleShowGroupAdd() {
+    groupTitleNewInput.current.value = "";
+  }
+
   async function handleAddGroup() {
-    const isSuccess = await addNewGroup(projectId);
+    const isSuccess = await addNewGroup(
+      projectId,
+      groupTitleNewInput.current.value
+    );
 
     if (isSuccess) {
       setProject(await getUserProjects(userDetails._id));
+
+      closeNewBtn.current.click();
     }
   }
 
   function handleShowGroupEdit(title, id) {
-    groupTitleInput.current.value = title;
+    groupTitleEditInput.current.value = title;
 
     setEditGroupId(id);
   }
 
   async function handleSubmitEditGroup() {
     const isSuccess = await updateGroup(
-      groupTitleInput.current.value,
+      groupTitleEditInput.current.value,
       editGroupId
     );
 
     if (isSuccess) {
       setProject(await getUserProjects(userDetails._id));
 
-      closeBtn.current.click();
+      closeEditBtn.current.click();
     }
   }
 
@@ -150,56 +176,25 @@ const Group = ({ selectedProject, userDetails }) => {
         <section className="project-group-list flex-fill">{groups}</section>
       </section>
 
-      <div
-        className="modal fade"
-        id="editGroupTitle"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabIndex="-1"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5">Edit Group Title</h1>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <label htmlFor="group-title" className="col-form-label">
-                Title:
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="group-title"
-                ref={groupTitleInput}
-                autoComplete="off"
-                required
-              />
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-                ref={closeBtn}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleSubmitEditGroup}
-              >
-                Update
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <GroupsModal
+        id="editGroupTitlePrompt"
+        title="Edit Group Title"
+        inputId="group-edit-title"
+        inputTitleRef={groupTitleEditInput}
+        closeBtnRef={closeEditBtn}
+        submitFunction={async () => await handleSubmitEditGroup()}
+        submitBtnLabel="Update"
+      />
+
+      <GroupsModal
+        id="addGroupPrompt"
+        title="Add New Group"
+        inputId="group-new-title"
+        inputTitleRef={groupTitleNewInput}
+        closeBtnRef={closeNewBtn}
+        submitFunction={async () => await handleAddGroup()}
+        submitBtnLabel="Add"
+      />
     </>
   );
 };
