@@ -20,7 +20,7 @@ const Profile = ({ defaultProfileInputs }) => {
     fetchUserDetails();
   }, []);
 
-  async function updateProfile(password, fullName, email) {
+  async function updateProfile(password, fullName, email, closeBtnRef) {
     const isSuccess = await updateUser(
       userDetails.username,
       password,
@@ -30,6 +30,8 @@ const Profile = ({ defaultProfileInputs }) => {
 
     if (isSuccess) {
       setUserDetails(await getUserDetails());
+
+      closeBtnRef.current.click();
 
       toast.dismiss();
       toast.success("Profile updated successfully!");

@@ -5,13 +5,14 @@ const ProfileModal = ({
   title,
   inputId,
   updateProfile,
-  defaultProfileInputs,
   userDetails,
+  defaultProfileInputs,
 }) => {
   const usernameInput = useRef();
   const passwordInput = useRef();
   const fullNameInput = useRef();
   const emailInput = useRef();
+  const closeBtnRef = useRef();
 
   useEffect(() => {
     usernameInput.current.value = userDetails.username;
@@ -19,6 +20,15 @@ const ProfileModal = ({
     fullNameInput.current.value = userDetails.fullName;
     emailInput.current.value = userDetails.email;
   }, [defaultProfileInputs]);
+
+  async function handleSubmit() {
+    updateProfile(
+      passwordInput.current.value,
+      fullNameInput.current.value,
+      emailInput.current.value,
+      closeBtnRef
+    );
+  }
 
   return (
     <div
@@ -38,7 +48,7 @@ const ProfileModal = ({
               data-bs-dismiss="modal"
             ></button>
           </div>
-          <form autoComplete="off">
+          <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
             <div className="modal-body">
               <section className="mb-3">
                 <label htmlFor={inputId.username} className="col-form-label">
@@ -93,19 +103,14 @@ const ProfileModal = ({
                 type="button"
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
+                ref={closeBtnRef}
               >
                 Close
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={async () =>
-                  await updateProfile(
-                    passwordInput.current.value,
-                    fullNameInput.current.value,
-                    emailInput.current.value
-                  )
-                }
+                onClick={handleSubmit}
               >
                 Update
               </button>
