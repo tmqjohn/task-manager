@@ -16,7 +16,7 @@ const Group = ({ selectedProject, userDetails }) => {
   const [groups, setGroups] = useState([]);
 
   const [addGroupBtn, setAddGroupBtn] = useState();
-  const [editGroupId, setEditGroupId] = useState();
+  const [groupId, setGroupId] = useState();
 
   const { projectId } = useParams();
 
@@ -72,6 +72,7 @@ const Group = ({ selectedProject, userDetails }) => {
                       className="btn dropdown-item"
                       data-bs-target="#confirmDeleteGroupPrompt"
                       data-bs-toggle="modal"
+                      onClick={() => handleShowRemoveGroup(group?._id)}
                     >
                       Remove Group
                     </button>
@@ -110,13 +111,6 @@ const Group = ({ selectedProject, userDetails }) => {
               </tr>
             </tbody>
           </table>
-
-          <ConfirmModal
-            id="confirmDeleteGroupPrompt"
-            title="Are you sure you want to delete this group?"
-            body="This action cannot be undone."
-            submitFunction={async () => await handleRemoveGroup(group?._id)}
-          />
         </article>
       ))
     );
@@ -142,13 +136,13 @@ const Group = ({ selectedProject, userDetails }) => {
   function handleShowGroupEdit(title, id) {
     groupTitleEditInput.current.value = title;
 
-    setEditGroupId(id);
+    setGroupId(id);
   }
 
   async function handleSubmitEditGroup() {
     const isSuccess = await updateGroup(
       groupTitleEditInput.current.value,
-      editGroupId
+      groupId
     );
 
     if (isSuccess) {
@@ -158,8 +152,12 @@ const Group = ({ selectedProject, userDetails }) => {
     }
   }
 
-  async function handleRemoveGroup(id) {
-    const isSuccess = await deleteGroup(id, projectId);
+  function handleShowRemoveGroup(id) {
+    setGroupId(id);
+  }
+
+  async function handleRemoveGroup() {
+    const isSuccess = await deleteGroup(groupId, projectId);
 
     if (isSuccess) {
       setProject(await getUserProjects(userDetails._id));
@@ -194,6 +192,13 @@ const Group = ({ selectedProject, userDetails }) => {
         closeBtnRef={closeNewBtn}
         submitFunction={async () => await handleAddGroup()}
         submitBtnLabel="Add"
+      />
+
+      <ConfirmModal
+        id="confirmDeleteGroupPrompt"
+        title="Are you sure you want to delete this group?"
+        body="This action cannot be undone."
+        submitFunction={async () => await handleRemoveGroup()}
       />
     </>
   );
