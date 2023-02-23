@@ -29,7 +29,7 @@ const addNewGroup = asyncHandler(async (req, res) => {
 
 /**@ PUT request
  * edit and update group
- * /api/group
+ * /api/group/:groupId
  */
 const updateGroup = asyncHandler(async (req, res) => {
   const { title } = req.body;
@@ -50,7 +50,7 @@ const updateGroup = asyncHandler(async (req, res) => {
 
 /**@ DELETE request
  * delete a request
- * /api/group
+ * /api/group/:groupId
  */
 const deleteGroup = asyncHandler(async (req, res) => {
   const { groupId } = req.params;
@@ -64,6 +64,10 @@ const deleteGroup = asyncHandler(async (req, res) => {
   }
 });
 
+/**@ PUT request
+ * delete groups linked from a deleted project
+ * /api/group
+ */
 const deleteAllGroup = asyncHandler(async (req, res) => {
   const { groupIds } = req.body;
 
