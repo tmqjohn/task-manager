@@ -7,6 +7,9 @@ import { useUserStore, useProjectStore } from "../../../store/store";
 import { getUserDetails } from "../../api/user";
 import { updateProject, deleteProject } from "../../api/projects";
 
+import ProjectModal from "../../layout/ModalLayout/ProjectModal";
+import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
+
 const ManageProject = ({
   selectedProject,
   projectDefaults,
@@ -24,7 +27,7 @@ const ManageProject = ({
   const descInput = useRef();
   const searchMemberInput = useRef();
   const searchOwnerInput = useRef();
-  const closeButton = useRef();
+  const closeBtnRef = useRef();
 
   const navigate = useNavigate();
 
@@ -174,7 +177,7 @@ const ManageProject = ({
     if (updatedProjects) {
       setProject(updatedProjects);
 
-      closeButton.current.click();
+      closeBtnRef.current.click();
       toast.dismiss();
       toast.success("Project has been updated successfully!");
     }
@@ -197,184 +200,41 @@ const ManageProject = ({
 
   return (
     <>
-      <div
-        className="modal fade"
+      <ProjectModal
         id="manageProjectPrompt"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabIndex="-1"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5">Manage Project</h1>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
+        title="Manage Project"
+        inputId={{
+          title: "edit-project-title",
+          desc: "edit-project-desc",
+          owners: "edit-project-owners",
+          members: "edit-project-members",
+        }}
+        inputRef={{
+          titleInput,
+          descInput,
+          searchMemberInput,
+          searchOwnerInput,
+          closeBtnRef,
+        }}
+        owner={null}
+        ownerList={ownerList}
+        memberList={memberList}
+        handleEdit={handleEdit}
+        submitFunctions={{ addOwner, addMember }}
+        submitBtnLabel="Update Project"
+        projectDefaults={projectDefaults}
+        selectedProject={selectedProject}
+      />
 
-            <div className="modal-body">
-              <section className="mb-3">
-                <label htmlFor="edit-project-title" className="col-form-label">
-                  Title:
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="edit-project-title"
-                  ref={titleInput}
-                  autoComplete="off"
-                />
-              </section>
-
-              <section className="mb-3">
-                <label
-                  htmlFor="edit-project-description"
-                  className="col-form-label"
-                >
-                  Description:
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="edit-project-description"
-                  ref={descInput}
-                  autoComplete="off"
-                />
-              </section>
-
-              <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-                <section>
-                  <label
-                    htmlFor="edit-project-owners"
-                    className="col-form-label"
-                  >
-                    Owners:
-                  </label>
-                  <div className="d-flex">
-                    <input
-                      type="text"
-                      className="form-control me-3"
-                      id="edit-project-owners-search"
-                      placeholder="Search by username"
-                      ref={searchOwnerInput}
-                      autoComplete="off"
-                    />
-                    <button className="btn ms-auto p-0" onClick={addOwner}>
-                      <img src="/add.svg" />
-                    </button>
-                  </div>
-
-                  <ul className="list-group list-group-flush mt-1 mb-0">
-                    {ownerList}
-                  </ul>
-                </section>
-              </form>
-
-              <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-                <section>
-                  <label
-                    htmlFor="edit-project-members"
-                    className="col-form-label"
-                  >
-                    Members:
-                  </label>
-                  <div className="d-flex">
-                    <input
-                      type="text"
-                      className="form-control me-3"
-                      id="edit-project-members-search"
-                      placeholder="Search by username"
-                      ref={searchMemberInput}
-                      autoComplete="off"
-                    />
-                    <button className="btn ms-auto p-0" onClick={addMember}>
-                      <img src="/add.svg" />
-                    </button>
-                  </div>
-
-                  <ul className="list-group list-group-flush mt-1 mb-0">
-                    {memberList}
-                  </ul>
-                </section>
-              </form>
-            </div>
-
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-danger me-auto"
-                data-bs-target="#confirmDeletePrompt"
-                data-bs-toggle="modal"
-              >
-                Delete Project
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-                ref={closeButton}
-              >
-                Close
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleEdit}
-              >
-                Update
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        className="modal fade"
+      <ConfirmModal
         id="confirmDeletePrompt"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabIndex="-1"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5">
-                Are you sure you want to delete your project?
-              </h1>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
-            <div className="modal-body">This action cannot be undone.</div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-target="#manageProjectPrompt"
-                data-bs-toggle="modal"
-                onClick={() => setProjectDefaults((prev) => !prev)}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                data-bs-dismiss="modal"
-                onClick={handleDelete}
-              >
-                Yes
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+        title={`Are you sure you want to delete '${selectedProject[0]?.title}' project?`}
+        body="This action cannot be undone."
+        submitFunction={async () => await handleDelete()}
+        optionalClose={true}
+        optionalCloseTarget="#manageProjectPrompt"
+        optionalFunction={() => setProjectDefaults((prev) => !prev)}
+      />
     </>
   );
 };

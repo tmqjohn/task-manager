@@ -8,6 +8,8 @@ import { getUserDetails } from "../../api/user";
 import { useProjectStore } from "../../../store/store";
 import { useUserStore } from "../../../store/store";
 
+import ProjectModal from "../../layout/ModalLayout/ProjectModal";
+
 const CreateProject = ({ clearInputs }) => {
   const { projects, setProject } = useProjectStore((state) => ({
     projects: state.projects,
@@ -24,7 +26,7 @@ const CreateProject = ({ clearInputs }) => {
   const descInput = useRef();
   const searchMemberInput = useRef();
   const searchOwnerInput = useRef();
-  const closeButton = useRef();
+  const closeBtnRef = useRef();
 
   const navigate = useNavigate();
 
@@ -59,7 +61,7 @@ const CreateProject = ({ clearInputs }) => {
       setProject([...projects, newProject]);
       navigate(`/project/${newProject._id}`);
 
-      closeButton.current.click();
+      closeBtnRef.current.click();
       toast.dismiss();
       toast.success("Project has been created successfully!");
     }
@@ -181,118 +183,29 @@ const CreateProject = ({ clearInputs }) => {
   ));
 
   return (
-    <div
-      className="modal fade"
+    <ProjectModal
       id="createProjectPrompt"
-      data-bs-backdrop="static"
-      data-bs-keyboard="false"
-      tabIndex="-1"
-    >
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h1 className="modal-title fs-5">Create Project</h1>
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div className="modal-body">
-            <section className="mb-3">
-              <label htmlFor="project-title" className="col-form-label">
-                Title:
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="project-title"
-                ref={titleInput}
-                autoComplete="off"
-              />
-            </section>
-            <section className="mb-3">
-              <label htmlFor="project-description" className="col-form-label">
-                Description:
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="project-description"
-                ref={descInput}
-                autoComplete="off"
-              />
-            </section>
-            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <section>
-                <label htmlFor="project-owners" className="col-form-label">
-                  Owners:
-                </label>
-                <div className="d-flex">
-                  <input
-                    type="text"
-                    className="form-control me-3"
-                    id="project-owners-search"
-                    placeholder="Search by username"
-                    ref={searchOwnerInput}
-                    autoComplete="off"
-                  />
-                  <button className="btn ms-auto p-0" onClick={addOwner}>
-                    <img src="/add.svg" />
-                  </button>
-                </div>
-
-                <ul className="list-group list-group-flush mt-1 mb-0">
-                  {owner}
-                  {ownerList}
-                </ul>
-              </section>
-            </form>
-            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <section>
-                <label htmlFor="project-members" className="col-form-label">
-                  Members:
-                </label>
-                <div className="d-flex">
-                  <input
-                    type="text"
-                    className="form-control me-3"
-                    id="project-members-search"
-                    placeholder="Search by username"
-                    ref={searchMemberInput}
-                    autoComplete="off"
-                  />
-                  <button className="btn ms-auto p-0" onClick={addMember}>
-                    <img src="/add.svg" />
-                  </button>
-                </div>
-
-                <ul className="list-group list-group-flush mt-1 mb-0">
-                  {memberList}
-                </ul>
-              </section>
-            </form>
-          </div>
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              data-bs-dismiss="modal"
-              ref={closeButton}
-            >
-              Close
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleCreate}
-            >
-              Create Project
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+      title="Create Project"
+      inputId={{
+        title: "new-project-title",
+        desc: "new-project-desc",
+        owners: "new-project-owners",
+        members: "new-project-members",
+      }}
+      inputRef={{
+        titleInput,
+        descInput,
+        searchMemberInput,
+        searchOwnerInput,
+        closeBtnRef,
+      }}
+      owner={owner}
+      ownerList={ownerList}
+      memberList={memberList}
+      handleCreate={handleCreate}
+      submitFunctions={{ addOwner, addMember }}
+      submitBtnLabel="Create Project"
+    />
   );
 };
 
