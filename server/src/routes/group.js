@@ -9,7 +9,8 @@ const router = Router();
 router
   .route("/")
   .get(groupController.getAllGroups) //gets all groups
-  .post(groupController.addNewGroup); // add a new group
+  .post(groupController.addNewGroup) // add a new group
+  .put(groupController.deleteAllGroup); // deletes all groups linked from a project
 
 router
   .route("/:groupId")
