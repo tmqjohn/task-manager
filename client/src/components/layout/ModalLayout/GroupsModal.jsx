@@ -27,7 +27,13 @@ const GroupsModal = ({
               data-bs-dismiss="modal"
             ></button>
           </div>
-          <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+          <form
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitFunction;
+            }}
+          >
             <div className="modal-body">
               <label htmlFor={inputId} className="col-form-label">
                 Title:
@@ -51,7 +57,7 @@ const GroupsModal = ({
                 Back
               </button>
               <button
-                type="button"
+                type="submit"
                 className="btn btn-primary"
                 onClick={submitFunction}
               >
