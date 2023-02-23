@@ -17,6 +17,7 @@ const Group = ({ selectedProject, userDetails }) => {
 
   const [addGroupBtn, setAddGroupBtn] = useState();
   const [groupId, setGroupId] = useState();
+  const [groupName, setGroupName] = useState();
 
   const { projectId } = useParams();
 
@@ -72,7 +73,9 @@ const Group = ({ selectedProject, userDetails }) => {
                       className="btn dropdown-item"
                       data-bs-target="#confirmDeleteGroupPrompt"
                       data-bs-toggle="modal"
-                      onClick={() => handleShowRemoveGroup(group?._id)}
+                      onClick={() =>
+                        handleShowRemoveGroup(group?.title, group?._id)
+                      }
                     >
                       Remove Group
                     </button>
@@ -152,8 +155,9 @@ const Group = ({ selectedProject, userDetails }) => {
     }
   }
 
-  function handleShowRemoveGroup(id) {
+  function handleShowRemoveGroup(title, id) {
     setGroupId(id);
+    setGroupName(title);
   }
 
   async function handleRemoveGroup() {
@@ -175,16 +179,6 @@ const Group = ({ selectedProject, userDetails }) => {
       </section>
 
       <GroupsModal
-        id="editGroupTitlePrompt"
-        title="Edit Group Title"
-        inputId="group-edit-title"
-        inputTitleRef={groupTitleEditInput}
-        closeBtnRef={closeEditBtn}
-        submitFunction={async () => await handleSubmitEditGroup()}
-        submitBtnLabel="Update"
-      />
-
-      <GroupsModal
         id="addGroupPrompt"
         title="Add New Group"
         inputId="group-new-title"
@@ -194,9 +188,19 @@ const Group = ({ selectedProject, userDetails }) => {
         submitBtnLabel="Add"
       />
 
+      <GroupsModal
+        id="editGroupTitlePrompt"
+        title="Edit Group Title"
+        inputId="group-edit-title"
+        inputTitleRef={groupTitleEditInput}
+        closeBtnRef={closeEditBtn}
+        submitFunction={async () => await handleSubmitEditGroup()}
+        submitBtnLabel="Update"
+      />
+
       <ConfirmModal
         id="confirmDeleteGroupPrompt"
-        title="Are you sure you want to delete this group?"
+        title={`Are you sure you want to delete '${groupName}' group?`}
         body="This action cannot be undone."
         submitFunction={async () => await handleRemoveGroup()}
       />
