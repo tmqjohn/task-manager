@@ -186,7 +186,8 @@ const ManageProject = ({
   async function handleDelete() {
     const updatedProjects = await deleteProject(
       selectedProject[0]._id,
-      selectedProject[0].owner[0]
+      selectedProject[0].owner[0],
+      selectedProject[0].groups
     );
 
     if (updatedProjects) {
@@ -229,7 +230,7 @@ const ManageProject = ({
       <ConfirmModal
         id="confirmDeletePrompt"
         title={`Are you sure you want to delete '${selectedProject[0]?.title}' project?`}
-        body="This action cannot be undone."
+        body="This will also delete all the groups and tasks in the project. This action cannot be undone."
         submitFunction={async () => await handleDelete()}
         optionalClose={true}
         optionalCloseTarget="#manageProjectPrompt"

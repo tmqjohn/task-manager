@@ -64,9 +64,12 @@ export async function updateProject(id, title, desc, owner, members) {
  * @DELETE request
  * http://serverurl/api/projects/:projectId
  */
-export async function deleteProject(id, owner) {
+export async function deleteProject(id, owner, groupIds) {
   try {
     await axios.delete(`api/project/${id}`);
+    await axios.put("api/group/", {
+      groupIds,
+    });
 
     const response = await getUserProjects(owner);
 
