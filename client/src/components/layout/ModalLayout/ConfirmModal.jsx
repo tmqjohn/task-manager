@@ -1,6 +1,14 @@
 import React from "react";
 
-const ConfirmModal = ({ id, title, body, submitFunction, optionalClose }) => {
+const ConfirmModal = ({
+  id,
+  title,
+  body,
+  submitFunction,
+  optionalClose = false,
+  optionalCloseTarget,
+  optionalFunction,
+}) => {
   return (
     <div
       className="modal fade"
@@ -24,7 +32,10 @@ const ConfirmModal = ({ id, title, body, submitFunction, optionalClose }) => {
             <button
               type="button"
               className="btn btn-secondary"
-              data-bs-dismiss="modal"
+              data-bs-dismiss={optionalClose ? null : "modal"}
+              data-bs-target={optionalClose ? optionalCloseTarget : null}
+              data-bs-toggle={optionalClose ? "modal" : null}
+              onClick={optionalClose ? optionalFunction : null}
             >
               Back
             </button>
