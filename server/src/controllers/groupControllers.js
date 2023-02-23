@@ -64,9 +64,25 @@ const deleteGroup = asyncHandler(async (req, res) => {
   }
 });
 
+const deleteAllGroup = asyncHandler(async (req, res) => {
+  const { groupIds } = req.body;
+
+  const result = await Group.deleteMany({ _id: groupIds });
+
+  if (result.acknowledged) {
+    res.status(200).json({
+      message:
+        "Groups associated with the deleted project has been deleted successfully",
+    });
+  } else {
+    res.status(400).json({ message: "There was an error deleting the groups" });
+  }
+});
+
 module.exports = {
   getAllGroups,
   addNewGroup,
   updateGroup,
   deleteGroup,
+  deleteAllGroup,
 };
