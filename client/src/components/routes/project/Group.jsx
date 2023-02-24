@@ -2,18 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { useProjectStore } from "../../../store/store";
+import { useProjectStore, useGroupStore } from "../../../store/store";
 
 import { addNewGroup, updateGroup, deleteGroup } from "../../api/group";
-import { getUserProjects } from "../../api/projects";
 
 import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
 import GroupsModal from "../../layout/ModalLayout/GroupsModal";
 
 const Group = ({ selectedProject, userDetails }) => {
   const setProjects = useProjectStore((state) => state.setProjects);
-
-  const [groups, setGroups] = useState([]);
+  const { groups, setGroups } = useGroupStore((state) => ({
+    groups: state.groups,
+    setGroups: state.setGroups,
+  }));
 
   const [addGroupBtn, setAddGroupBtn] = useState();
   const [groupId, setGroupId] = useState();
@@ -44,79 +45,7 @@ const Group = ({ selectedProject, userDetails }) => {
       ) : null
     );
 
-    setGroups(
-      selectedProject[0]?.groupDetails.map((group) => (
-        <article className="project-group mt-2" key={group?._id}>
-          <div className="group-title d-flex">
-            <h4>{group?.title}</h4>
-
-            {selectedProject[0].owner.includes(userDetails?._id) ? (
-              <>
-                <button className="btn ms-2 p-0" data-bs-toggle="dropdown">
-                  <img src="/more.svg" />
-                </button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <button
-                      className="btn dropdown-item"
-                      data-bs-target="#editGroupTitlePrompt"
-                      data-bs-toggle="modal"
-                      onClick={() =>
-                        handleShowGroupEdit(group?.title, group?._id)
-                      }
-                    >
-                      Edit Group Title
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="btn dropdown-item"
-                      data-bs-target="#confirmDeleteGroupPrompt"
-                      data-bs-toggle="modal"
-                      onClick={() =>
-                        handleShowRemoveGroup(group?.title, group?._id)
-                      }
-                    >
-                      Remove Group
-                    </button>
-                  </li>
-                </ul>
-              </>
-            ) : null}
-          </div>
-
-          <table className="table mb-3">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Handle</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-              </tr>
-              <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-              </tr>
-              <tr>
-                <th scope="row">3</th>
-                <td colSpan="2">Larry the Bird</td>
-                <td>@twitter</td>
-              </tr>
-            </tbody>
-          </table>
-        </article>
-      ))
-    );
+    setGroups(selectedProject[0]?.groupDetails);
   }, [selectedProject]);
 
   function handleShowGroupAdd() {
@@ -175,7 +104,80 @@ const Group = ({ selectedProject, userDetails }) => {
     <>
       <section className="project-content d-flex flex-column flex-fill py-2">
         {addGroupBtn}
-        <section className="project-group-list flex-fill">{groups}</section>
+
+        <section className="project-group-list flex-fill">
+          {groups?.map((group) => (
+            <article className="project-group mt-2" key={group._id}>
+              <div className="group-title d-flex">
+                <h4>{group.title}</h4>
+
+                {selectedProject[0].owner.includes(userDetails?._id) ? (
+                  <>
+                    <button className="btn ms-2 p-0" data-bs-toggle="dropdown">
+                      <img src="/more.svg" />
+                    </button>
+                    <ul className="dropdown-menu">
+                      <li>
+                        <button
+                          className="btn dropdown-item"
+                          data-bs-target="#editGroupTitlePrompt"
+                          data-bs-toggle="modal"
+                          onClick={() =>
+                            handleShowGroupEdit(group.title, group._id)
+                          }
+                        >
+                          Edit Group Title
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="btn dropdown-item"
+                          data-bs-target="#confirmDeleteGroupPrompt"
+                          data-bs-toggle="modal"
+                          onClick={() =>
+                            handleShowRemoveGroup(group.title, group._id)
+                          }
+                        >
+                          Remove Group
+                        </button>
+                      </li>
+                    </ul>
+                  </>
+                ) : null}
+              </div>
+
+              <table className="table mb-3">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Handle</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>@mdo</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td colSpan="2">Larry the Bird</td>
+                    <td>@twitter</td>
+                  </tr>
+                </tbody>
+              </table>
+            </article>
+          ))}
+        </section>
       </section>
 
       <GroupsModal
