@@ -12,6 +12,7 @@ import OTP from "./routes/login/PasswordReset/Code";
 import Reset from "./routes/login/PasswordReset/Reset";
 
 // components: main page
+import MainInit from "./routes/MainInit";
 import MainLayout from "./layout/MainLayout/MainLayout";
 import MainPage from "./routes/root/Main";
 import ProjectsPage from "./routes/project/Project";
@@ -31,11 +32,17 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <MainPage />,
-      },
-      {
-        path: "/project/:projectId",
-        element: <ProjectsPage />,
+        element: <MainInit />,
+        children: [
+          {
+            path: "/",
+            element: <MainPage />,
+          },
+          {
+            path: "/project/:projectId",
+            element: <ProjectsPage />,
+          },
+        ],
       },
     ],
   },
