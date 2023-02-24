@@ -66,7 +66,7 @@ const deleteGroup = asyncHandler(async (req, res) => {
 
 /**@ PUT request
  * delete groups linked from a deleted project
- * /api/group
+ * /api/group/project
  */
 const deleteAllGroup = asyncHandler(async (req, res) => {
   const { groupIds } = req.body;
