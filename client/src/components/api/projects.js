@@ -67,7 +67,7 @@ export async function updateProject(id, title, desc, owner, members) {
 export async function deleteProject(id, owner, groupIds) {
   try {
     await axios.delete(`api/project/${id}`);
-    await axios.put("api/group/", {
+    await axios.put("api/group/project", {
       groupIds,
     });
 
