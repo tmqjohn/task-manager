@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { toast } from "react-toastify";
 
 import { useUserStore } from "../../../store/store";
-import { getUserDetails, updateUser } from "../../api/user";
+import { updateUser } from "../../api/user";
 
 import ProfileModal from "../../layout/ModalLayout/ProfileModal";
 
@@ -11,14 +11,6 @@ const Profile = ({ defaultProfileInputs }) => {
     userDetails: state.userDetails,
     setUserDetails: state.setUserDetails,
   }));
-
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      setUserDetails(await getUserDetails());
-    };
-
-    fetchUserDetails();
-  }, []);
 
   async function updateProfile(password, fullName, email, closeBtnRef) {
     const isSuccess = await updateUser(
@@ -29,7 +21,7 @@ const Profile = ({ defaultProfileInputs }) => {
     );
 
     if (isSuccess) {
-      setUserDetails(await getUserDetails());
+      setUserDetails();
 
       closeBtnRef.current.click();
 
