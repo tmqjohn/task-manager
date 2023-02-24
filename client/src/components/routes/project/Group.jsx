@@ -11,7 +11,7 @@ import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
 import GroupsModal from "../../layout/ModalLayout/GroupsModal";
 
 const Group = ({ selectedProject, userDetails }) => {
-  const setProject = useProjectStore((state) => state.setProject);
+  const setProjects = useProjectStore((state) => state.setProjects);
 
   const [groups, setGroups] = useState([]);
 
@@ -130,7 +130,7 @@ const Group = ({ selectedProject, userDetails }) => {
     );
 
     if (isSuccess) {
-      setProject(await getUserProjects(userDetails._id));
+      setProjects();
 
       closeNewBtn.current.click();
     }
@@ -149,7 +149,7 @@ const Group = ({ selectedProject, userDetails }) => {
     );
 
     if (isSuccess) {
-      setProject(await getUserProjects(userDetails._id));
+      setProjects();
 
       closeEditBtn.current.click();
     }
@@ -164,7 +164,7 @@ const Group = ({ selectedProject, userDetails }) => {
     const isSuccess = await deleteGroup(groupId, projectId);
 
     if (isSuccess) {
-      setProject(await getUserProjects(userDetails._id));
+      setProjects();
 
       toast.dismiss();
       toast.success(isSuccess.message);

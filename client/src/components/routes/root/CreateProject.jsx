@@ -11,10 +11,7 @@ import { useUserStore } from "../../../store/store";
 import ProjectModal from "../../layout/ModalLayout/ProjectModal";
 
 const CreateProject = ({ clearInputs }) => {
-  const { projects, setProject } = useProjectStore((state) => ({
-    projects: state.projects,
-    setProject: state.setProject,
-  }));
+  const setProjects = useProjectStore((state) => state.setProjects);
   const userDetails = useUserStore((state) => state.userDetails);
 
   const [members, setMembers] = useState([]);
@@ -58,7 +55,7 @@ const CreateProject = ({ clearInputs }) => {
     );
 
     if (newProject) {
-      setProject([...projects, newProject]);
+      setProjects();
       navigate(`/project/${newProject._id}`);
 
       closeBtnRef.current.click();

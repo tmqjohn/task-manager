@@ -1,31 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { shallow } from "zustand/shallow";
 
 import CreateProject from "../../routes/root/CreateProject";
 
-import { getUserProjects } from "../../api/projects";
 import { useProjectStore } from "../../../store/store";
-
-import { getUserId } from "../../api/user";
 
 const SidePanel = () => {
   const [clearInputs, setClear] = useState(false);
-  const { projects, setProject } = useProjectStore(
-    (state) => ({
-      projects: state.projects,
-      setProject: state.setProject,
-    }),
-    shallow
-  );
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      setProject(await getUserProjects(getUserId().userId));
-    };
-
-    fetchProjects();
-  }, []);
+  const projects = useProjectStore((state) => state.projects);
 
   let projectList = projects?.map((project, i) => (
     <Link

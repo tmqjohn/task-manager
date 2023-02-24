@@ -10,7 +10,7 @@ const Projects = () => {
   const projects = useProjectStore((state) => state.projects);
   const userDetails = useUserStore((state) => state.userDetails);
   const [selectedProject, setSelectedProject] = useState([]);
-  const [projectDefaults, setProjectDefaults] = useState(false);
+  const [projectDefaults, setProjectsDefaults] = useState(false);
 
   let { projectId } = useParams();
   let manageBtn;
@@ -22,7 +22,7 @@ const Projects = () => {
   }, [projects, projectId]);
 
   function handleDefaultInput() {
-    setProjectDefaults((prev) => !prev);
+    setProjectsDefaults((prev) => !prev);
   }
 
   if (selectedProject[0]) {
@@ -54,7 +54,7 @@ const Projects = () => {
       <ManageProject
         selectedProject={selectedProject}
         projectDefaults={projectDefaults}
-        setProjectDefaults={setProjectDefaults}
+        setProjectsDefaults={setProjectsDefaults}
       />
     </>
   );

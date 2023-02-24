@@ -13,10 +13,10 @@ import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
 const ManageProject = ({
   selectedProject,
   projectDefaults,
-  setProjectDefaults,
+  setProjectsDefaults,
 }) => {
   const userDetails = useUserStore((state) => state.userDetails);
-  const setProject = useProjectStore((state) => state.setProject);
+  const setProjects = useProjectStore((state) => state.setProjects);
 
   const [owners, setOwners] = useState([]);
   const [ownersId, setOwnersId] = useState([]);
@@ -175,7 +175,7 @@ const ManageProject = ({
     );
 
     if (updatedProjects) {
-      setProject(updatedProjects);
+      setProjects();
 
       closeBtnRef.current.click();
       toast.dismiss();
@@ -191,7 +191,7 @@ const ManageProject = ({
     );
 
     if (updatedProjects) {
-      setProject(updatedProjects);
+      setProjects();
       navigate("/");
 
       toast.dismiss();
@@ -234,7 +234,7 @@ const ManageProject = ({
         submitFunction={async () => await handleDelete()}
         optionalClose={true}
         optionalCloseTarget="#manageProjectPrompt"
-        optionalFunction={() => setProjectDefaults((prev) => !prev)}
+        optionalFunction={() => setProjectsDefaults((prev) => !prev)}
       />
     </>
   );
