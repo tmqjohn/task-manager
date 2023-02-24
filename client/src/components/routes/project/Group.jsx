@@ -16,7 +16,6 @@ const Group = ({ selectedProject, userDetails }) => {
     setGroups: state.setGroups,
   }));
 
-  const [addGroupBtn, setAddGroupBtn] = useState();
   const [groupId, setGroupId] = useState();
   const [groupName, setGroupName] = useState();
 
@@ -28,23 +27,6 @@ const Group = ({ selectedProject, userDetails }) => {
   const closeNewBtn = useRef();
 
   useEffect(() => {
-    setAddGroupBtn(
-      selectedProject[0]?.owner.includes(userDetails?._id) ? (
-        <>
-          <section className="control-buttons d-flex w-25">
-            <button
-              className="btn btn-primary p-1 ms-1 mb-2"
-              data-bs-target="#addGroupPrompt"
-              data-bs-toggle="modal"
-              onClick={handleShowGroupAdd}
-            >
-              <img src="/group_add.svg" /> Add Group
-            </button>
-          </section>
-        </>
-      ) : null
-    );
-
     setGroups(selectedProject[0]?.groupDetails);
   }, [selectedProject]);
 
@@ -103,7 +85,20 @@ const Group = ({ selectedProject, userDetails }) => {
   return (
     <>
       <section className="project-content d-flex flex-column flex-fill py-2">
-        {addGroupBtn}
+        {selectedProject[0]?.owner.includes(userDetails?._id) ? (
+          <>
+            <section className="control-buttons d-flex w-25">
+              <button
+                className="btn btn-primary p-1 ms-1 mb-2"
+                data-bs-target="#addGroupPrompt"
+                data-bs-toggle="modal"
+                onClick={handleShowGroupAdd}
+              >
+                <img src="/group_add.svg" /> Add Group
+              </button>
+            </section>
+          </>
+        ) : null}
 
         <section className="project-group-list flex-fill">
           {groups?.map((group) => (
@@ -111,7 +106,7 @@ const Group = ({ selectedProject, userDetails }) => {
               <div className="group-title d-flex">
                 <h4>{group.title}</h4>
 
-                {selectedProject[0].owner.includes(userDetails?._id) ? (
+                {selectedProject[0]?.owner.includes(userDetails?._id) ? (
                   <>
                     <button className="btn ms-2 p-0" data-bs-toggle="dropdown">
                       <img src="/more.svg" />
