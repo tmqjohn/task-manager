@@ -2,15 +2,26 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { useProjectStore, useGroupStore } from "../../../store/store";
+import {
+  useProjectStore,
+  useGroupStore,
+  useUserStore,
+} from "../../../store/store";
 
 import { addNewGroup, updateGroup, deleteGroup } from "../../api/group";
 
+import Task from "./Task";
 import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
 import GroupsModal from "../../layout/ModalLayout/GroupsModal";
 
-const Group = ({ selectedProject, userDetails }) => {
-  const setProjects = useProjectStore((state) => state.setProjects);
+import "./styles/project.css";
+
+const Group = () => {
+  const userDetails = useUserStore((state) => state.userDetails);
+  const { selectedProject, setProjects } = useProjectStore((state) => ({
+    selectedProject: state.selectedProject,
+    setProjects: state.setProjects,
+  }));
   const { groups, setGroups } = useGroupStore((state) => ({
     groups: state.groups,
     setGroups: state.setGroups,
@@ -87,9 +98,9 @@ const Group = ({ selectedProject, userDetails }) => {
       <section className="project-content d-flex flex-column flex-fill py-2">
         {selectedProject[0]?.owner.includes(userDetails?._id) ? (
           <>
-            <section className="control-buttons d-flex w-25">
+            <section className="control-buttons d-flex">
               <button
-                className="btn btn-primary p-1 ms-1 mb-2"
+                className="btn btn-primary border border-0 p-1 ms-1 mb-2"
                 data-bs-target="#addGroupPrompt"
                 data-bs-toggle="modal"
                 onClick={handleShowGroupAdd}
@@ -102,75 +113,46 @@ const Group = ({ selectedProject, userDetails }) => {
 
         <section className="project-group-list flex-fill">
           {groups?.map((group) => (
-            <article className="project-group mt-2" key={group._id}>
-              <div className="group-title d-flex">
+            <div className="project-group mt-2" key={group._id}>
+              <div className="group-title target-hover d-flex pb-2">
                 <h4>{group.title}</h4>
 
                 {selectedProject[0]?.owner.includes(userDetails?._id) ? (
                   <>
-                    <button className="btn ms-2 p-0" data-bs-toggle="dropdown">
-                      <img src="/more.svg" />
+                    <button
+                      className="show-controls btn p-0 border border-0 ms-2 me-1"
+                      data-bs-target="#editGroupTitlePrompt"
+                      data-bs-toggle="modal"
+                      onClick={() =>
+                        handleShowGroupEdit(group.title, group._id)
+                      }
+                    >
+                      <img src="/edit_big.svg" />
                     </button>
-                    <ul className="dropdown-menu">
-                      <li>
-                        <button
-                          className="btn dropdown-item"
-                          data-bs-target="#editGroupTitlePrompt"
-                          data-bs-toggle="modal"
-                          onClick={() =>
-                            handleShowGroupEdit(group.title, group._id)
-                          }
-                        >
-                          Edit Group Title
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          className="btn dropdown-item"
-                          data-bs-target="#confirmDeleteGroupPrompt"
-                          data-bs-toggle="modal"
-                          onClick={() =>
-                            handleShowRemoveGroup(group.title, group._id)
-                          }
-                        >
-                          Remove Group
-                        </button>
-                      </li>
-                    </ul>
+                    <button
+                      className="show-controls btn p-0 border border-0"
+                      data-bs-target="#confirmDeleteGroupPrompt"
+                      data-bs-toggle="modal"
+                      onClick={() =>
+                        handleShowRemoveGroup(group.title, group._id)
+                      }
+                    >
+                      <img src="/remove_big.svg" />
+                    </button>
+
+                    <button
+                      className="show-controls btn btn-primary border border-0 ps-1 pe-2 py-0 ms-4"
+                      data-bs-target="#confirmDeleteGroupPrompt"
+                      data-bs-toggle="modal"
+                    >
+                      <img src="/add_small.svg" /> Add Task
+                    </button>
                   </>
                 ) : null}
               </div>
 
-              <table className="table mb-3">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td colSpan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
-                </tbody>
-              </table>
-            </article>
+              <Task group={group} />
+            </div>
           ))}
         </section>
       </section>
