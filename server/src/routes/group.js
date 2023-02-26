@@ -13,6 +13,8 @@ router
 
 router.route("/project").put(groupController.deleteAllGroup); // deletes all groups linked from a project
 
+router.route("/tasks/add").patch(groupController.addGroupTask); // add tasks to a group
+
 router
   .route("/:groupId")
   .put(groupController.updateGroup) // update group
