@@ -10,13 +10,12 @@ import { updateProject, deleteProject } from "../../api/projects";
 import ProjectModal from "../../layout/ModalLayout/ProjectModal";
 import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
 
-const ManageProject = ({
-  selectedProject,
-  projectDefaults,
-  setProjectsDefaults,
-}) => {
+const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   const userDetails = useUserStore((state) => state.userDetails);
-  const setProjects = useProjectStore((state) => state.setProjects);
+  const { selectedProject, setProjects } = useProjectStore((state) => ({
+    selectedProject: state.selectedProject,
+    setProjects: state.setProjects,
+  }));
 
   const [owners, setOwners] = useState([]);
   const [ownersId, setOwnersId] = useState([]);

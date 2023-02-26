@@ -7,18 +7,21 @@ import ManageProject from "./ManageProject";
 import Group from "./Group";
 
 const Projects = () => {
-  const projects = useProjectStore((state) => state.projects);
   const userDetails = useUserStore((state) => state.userDetails);
-  const [selectedProject, setSelectedProject] = useState([]);
+  const { projects, selectedProject, setSelectedProject } = useProjectStore(
+    (state) => ({
+      projects: state.projects,
+      selectedProject: state.selectedProject,
+      setSelectedProject: state.setSelectedProject,
+    })
+  );
   const [projectDefaults, setProjectsDefaults] = useState(false);
 
   let { projectId } = useParams();
   let manageBtn;
 
   useEffect(() => {
-    setSelectedProject(
-      projects?.filter((selectedProject) => selectedProject._id === projectId)
-    );
+    setSelectedProject(projectId);
   }, [projects, projectId]);
 
   function handleDefaultInput() {
@@ -52,7 +55,6 @@ const Projects = () => {
       <Group selectedProject={selectedProject} userDetails={userDetails} />
 
       <ManageProject
-        selectedProject={selectedProject}
         projectDefaults={projectDefaults}
         setProjectsDefaults={setProjectsDefaults}
       />
