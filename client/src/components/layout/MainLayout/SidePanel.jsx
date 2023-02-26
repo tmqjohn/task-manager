@@ -41,7 +41,7 @@ const SidePanel = () => {
               data-bs-target="#createProjectPrompt"
               onClick={handleDefault}
             >
-              <img src="/add.svg" />
+              <img src="/add_big.svg" />
             </button>
           </div>
 

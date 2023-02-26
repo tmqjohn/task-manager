@@ -75,7 +75,7 @@ const ProjectModal = ({
                     className="btn ms-auto p-0"
                     onClick={async () => await submitFunctions.addOwner()}
                   >
-                    <img src="/add.svg" />
+                    <img src="/add_big.svg" />
                   </button>
                 </div>
 
@@ -102,7 +102,7 @@ const ProjectModal = ({
                     className="btn ms-auto p-0"
                     onClick={async () => await submitFunctions.addMember()}
                   >
-                    <img src="/add.svg" />
+                    <img src="/add_big.svg" />
                   </button>
                 </div>
 
