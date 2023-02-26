@@ -20,6 +20,13 @@ export const useProjectStore = create((set, get) => ({
 
     set({ projects: data });
   },
+  selectedProject: [],
+  setSelectedProject: (projectId) =>
+    set({
+      selectedProject: get().projects.filter(
+        (project) => project._id === projectId
+      ),
+    }),
 }));
 
 export const useGroupStore = create((set, get) => ({
