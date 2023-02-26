@@ -1,0 +1,7 @@
+.target-hover:hover .show-controls {
+  display: block !important;
+}
+
+.show-controls {
+  display: none !important;
+}
