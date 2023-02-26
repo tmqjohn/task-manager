@@ -10,8 +10,9 @@ const TaskSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    active: {
-      type: Boolean,
+    status: {
+      type: String,
+      default: "Pending",
       required: true,
     },
     note: {

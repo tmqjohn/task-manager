@@ -82,10 +82,7 @@ const deleteGroup = asyncHandler(async (req, res) => {
 const addGroupTask = asyncHandler(async (req, res) => {
   const { groupId, tasks } = req.body;
 
-  const foundGroup = await Group.findById(groupId)
-    .select("tasks")
-    .lean()
-    .exec();
+  const foundGroup = await Group.findById(groupId).select("tasks").exec();
 
   foundGroup.tasks = [...foundGroup.tasks, tasks];
 

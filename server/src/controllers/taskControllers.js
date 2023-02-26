@@ -20,12 +20,11 @@ const getAllTasks = asyncHandler(async (req, res) => {
  * /api/task
  */
 const addNewTask = asyncHandler(async (req, res) => {
-  const { title, dueDate, active, note } = req.body;
+  const { title, dueDate, note } = req.body;
 
   const newTask = new Task({
     title,
     dueDate,
-    active,
     note,
   });
 
@@ -43,14 +42,14 @@ const addNewTask = asyncHandler(async (req, res) => {
  * /api/task/:taskId
  */
 const updateTask = asyncHandler(async (req, res) => {
-  const { title, dueDate, active, note } = req.body;
+  const { title, dueDate, status, note } = req.body;
   const { taskId } = req.params;
 
   const foundTask = await Task.findById(taskId).exec();
 
   foundTask.title = title;
   foundTask.dueDate = dueDate;
-  foundTask.active = active;
+  foundTask.status = status;
   foundTask.note = note;
 
   const result = await foundTask.save();
