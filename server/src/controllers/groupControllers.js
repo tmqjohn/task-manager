@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Group = require("../schema/GroupSchema");
+const Task = require("../schema/TaskSchema");
 
 /**@ GET request
  * gets all the groups
@@ -8,7 +9,17 @@ const Group = require("../schema/GroupSchema");
 const getAllGroups = asyncHandler(async (req, res) => {
   const foundGroups = await Group.find().lean();
 
-  res.status(200).json(foundGroups);
+  const groupDetails = await Promise.all(
+    foundGroups.map(async (group) => {
+      const taskDetails = await Promise.all(
+        group.tasks.map(async (task) => await Task.findById(task).exec())
+      );
+
+      return { ...group, taskDetails };
+    })
+  );
+
+  return res.status(200).json(groupDetails);
 });
 
 /**@ POST request
@@ -24,7 +35,7 @@ const addNewGroup = asyncHandler(async (req, res) => {
 
   const savedGroup = await newGroup.save();
 
-  res.status(200).json(savedGroup);
+  return res.status(200).json(savedGroup);
 });
 
 /**@ PUT request
@@ -42,7 +53,7 @@ const updateGroup = asyncHandler(async (req, res) => {
   const result = await foundGroup.save();
 
   if (result === foundGroup) {
-    res.status(200).json(result.toObject());
+    res.status(200).json(result);
   } else {
     res.status(400).json({ message: "There was an error updating the group" });
   }
@@ -61,6 +72,31 @@ const deleteGroup = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "Group has been deleted" });
   } else {
     res.status(400).json({ message: "There was an error deleting the group" });
+  }
+});
+
+/**@ PATCH request
+ * add tasksId to a group
+ * /api/group/tasks/add
+ */
+const addGroupTask = asyncHandler(async (req, res) => {
+  const { groupId, tasks } = req.body;
+
+  const foundGroup = await Group.findById(groupId)
+    .select("tasks")
+    .lean()
+    .exec();
+
+  foundGroup.tasks = [...foundGroup.tasks, tasks];
+
+  const result = await foundGroup.save();
+
+  if (result === foundGroup) {
+    res.status(200).json({ message: "Task has been added successfully" });
+  } else {
+    res
+      .status(400)
+      .json({ message: "There was an error updating the project" });
   }
 });
 
@@ -88,5 +124,6 @@ module.exports = {
   addNewGroup,
   updateGroup,
   deleteGroup,
+  addGroupTask,
   deleteAllGroup,
 };
