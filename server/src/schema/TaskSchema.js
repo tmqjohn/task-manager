@@ -6,18 +6,18 @@ const TaskSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    details: [
-      {
-        title: {
-          type: String,
-          required: true,
-        },
-        details: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
+    dueDate: {
+      type: String,
+      required: true,
+    },
+    active: {
+      type: Boolean,
+      required: true,
+    },
+    note: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
