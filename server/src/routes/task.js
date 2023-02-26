@@ -8,9 +8,14 @@ const router = Router();
 
 router
   .route("/")
-  .get(taskControllers.getAllTasks)
-  .post(taskControllers.addNewTask)
-  .put(taskControllers.updateTask)
-  .delete(taskControllers.deleteTask);
+  .get(taskControllers.getAllTasks) //gets all tasks
+  .post(taskControllers.addNewTask); // add a new task
+
+router.route("/group").put(taskControllers.deleteAllTask); // delete all task linked from a deleted group
+
+router
+  .route("/:taskId")
+  .put(taskControllers.updateTask) // updates task
+  .delete(taskControllers.deleteTask); // deletes a task
 
 module.exports = router;
