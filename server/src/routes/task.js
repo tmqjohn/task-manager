@@ -15,7 +15,7 @@ router.route("/group").put(taskControllers.deleteAllTask); // delete all task li
 
 router
   .route("/:taskId")
-  .put(taskControllers.updateTask) // updates task
+  .patch(taskControllers.updateTask) // updates task
   .delete(taskControllers.deleteTask); // deletes a task
 
 module.exports = router;

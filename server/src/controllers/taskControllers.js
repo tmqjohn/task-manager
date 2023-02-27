@@ -37,19 +37,18 @@ const addNewTask = asyncHandler(async (req, res) => {
   }
 });
 
-/**@ PUT request
+/**@ PATCH request
  * updates a task
  * /api/task/:taskId
  */
 const updateTask = asyncHandler(async (req, res) => {
-  const { title, dueDate, status, note } = req.body;
+  const { title, dueDate, note } = req.body;
   const { taskId } = req.params;
 
   const foundTask = await Task.findById(taskId).exec();
 
   foundTask.title = title;
   foundTask.dueDate = dueDate;
-  foundTask.status = status;
   foundTask.note = note;
 
   const result = await foundTask.save();
