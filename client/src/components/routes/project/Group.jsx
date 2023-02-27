@@ -9,10 +9,12 @@ import {
 } from "../../../store/store";
 
 import { addNewGroup, updateGroup, deleteGroup } from "../../api/group";
+import { addNewTask, updateTask, deleteTask } from "../../api/task";
 
 import Task from "./Task";
 import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
 import GroupsModal from "../../layout/ModalLayout/GroupsModal";
+import TasksModal from "../../layout/ModalLayout/TasksModal";
 
 import "./styles/project.css";
 
@@ -28,7 +30,10 @@ const Group = () => {
   }));
 
   const [groupId, setGroupId] = useState();
-  const [groupName, setGroupName] = useState();
+  const [taskId, setTaskId] = useState();
+  const [groupTitle, setGroupTitle] = useState();
+  const [taskTitle, setTaskTitle] = useState();
+  const [taskInputDefaults, setTaskInputDefaults] = useState(false);
 
   const { projectId } = useParams();
 
@@ -79,11 +84,60 @@ const Group = () => {
 
   function handleShowRemoveGroup(title, id) {
     setGroupId(id);
-    setGroupName(title);
+    setGroupTitle(title);
   }
 
   async function handleRemoveGroup() {
     const isSuccess = await deleteGroup(groupId, projectId);
+
+    if (isSuccess) {
+      setProjects();
+
+      toast.dismiss();
+      toast.success(isSuccess.message);
+    }
+  }
+
+  function handleShowTaskModal(groupId, taskId) {
+    setGroupId(groupId);
+    setTaskId(taskId);
+    setTaskInputDefaults((prev) => !prev);
+  }
+
+  async function handleAddTask(taskTitle, dueDate, noteInput, closeBtnRef) {
+    const isSuccess = await addNewTask(taskTitle, dueDate, noteInput, groupId);
+
+    if (isSuccess) {
+      setProjects();
+
+      closeBtnRef.current.click();
+    }
+  }
+
+  async function handleEditTask(taskTitle, dueDate, noteInput, closeBtnRef) {
+    const isSuccess = await updateTask(
+      taskTitle,
+      dueDate,
+      noteInput,
+      taskId,
+      closeBtnRef
+    );
+
+    if (isSuccess) {
+      setProjects();
+
+      closeBtnRef.current.click();
+    }
+  }
+
+  function handleShowRemoveTask(groupId, taskId, title) {
+    setGroupId(groupId);
+    setTaskId(taskId);
+    setTaskTitle(title);
+  }
+
+  async function handleRemoveTask() {
+    const isSuccess = await deleteTask(groupId, taskId);
 
     if (isSuccess) {
       setProjects();
@@ -142,8 +196,9 @@ const Group = () => {
 
                     <button
                       className="show-controls btn btn-primary border border-0 ps-1 pe-2 py-0 ms-4"
-                      data-bs-target="#confirmDeleteGroupPrompt"
+                      data-bs-target="#showAddTaskPrompt"
                       data-bs-toggle="modal"
+                      onClick={() => handleShowTaskModal(group._id)}
                     >
                       <img src="/add_small.svg" /> Add Task
                     </button>
@@ -151,7 +206,11 @@ const Group = () => {
                 ) : null}
               </div>
 
-              <Task group={group} />
+              <Task
+                group={group}
+                handleShowTaskModal={handleShowTaskModal}
+                handleShowRemoveTask={handleShowRemoveTask}
+              />
             </div>
           ))}
         </section>
@@ -179,9 +238,46 @@ const Group = () => {
 
       <ConfirmModal
         id="confirmDeleteGroupPrompt"
-        title={`Are you sure you want to delete '${groupName}' group?`}
+        title={`Are you sure you want to delete '${groupTitle}' group?`}
         body="This action cannot be undone."
         submitFunction={async () => await handleRemoveGroup()}
+      />
+
+      <TasksModal
+        id="showAddTaskPrompt"
+        title="Add Task"
+        inputId={{
+          taskTitle: "new-task-title",
+          dueDate: "new-due-date",
+          note: "new-note",
+        }}
+        handleAddTask={handleAddTask}
+        submitBtnLabel="Add"
+        taskInputDefaults={taskInputDefaults}
+        newTask={true}
+      />
+
+      <TasksModal
+        id="showEditTaskPrompt"
+        title="Edit Task"
+        inputId={{
+          taskTitle: "edit-task-title",
+          dueDate: "edit-due-date",
+          note: "edit-note",
+        }}
+        handleEditTask={handleEditTask}
+        submitBtnLabel="Update"
+        groupId={groupId}
+        taskId={taskId}
+        taskInputDefaults={taskInputDefaults}
+        newTask={false}
+      />
+
+      <ConfirmModal
+        id="showRemoveTaskPrompt"
+        title={`Are you sure you want to delete '${taskTitle}' task?`}
+        body="This action cannot be undone."
+        submitFunction={async () => await handleRemoveTask()}
       />
     </>
   );
