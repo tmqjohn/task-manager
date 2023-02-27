@@ -1,5 +1,5 @@
 .target-hover:hover .show-controls {
-  display: block !important;
+  display: inline-block !important;
 }
 
 .show-controls {
