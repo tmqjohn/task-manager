@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-import CreateProject from "../../routes/root/CreateProject";
+import CreateProject from "../../routes/project/CreateProject";
 
 import { useProjectStore } from "../../../store/store";
 
