@@ -22,6 +22,6 @@ router.route("/groups/add").patch(projectController.addProjectGroup); // add gro
 
 router
   .route("/groups/delete/:projectId")
-  .patch(projectController.deleteProjectGroup);
+  .patch(projectController.deleteProjectGroup); // delete a groupid from a project
 
 module.exports = router;
