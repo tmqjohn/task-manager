@@ -116,6 +116,29 @@ const deleteAllGroup = asyncHandler(async (req, res) => {
   }
 });
 
+/**@ PATCH request
+ * delete delete a task from a group
+ * /api/group/tasks/delete/:groupId
+ */
+const deleteGroupTask = asyncHandler(async (req, res) => {
+  const { taskId } = req.body;
+  const { groupId } = req.params;
+
+  const foundGroup = await Group.findById(groupId).select("tasks").exec();
+
+  foundGroup.tasks = foundGroup.tasks.filter((task) => task != taskId);
+
+  const result = await foundGroup.save();
+
+  if (result === foundGroup) {
+    res.status(200).json({ message: "Task removed successfully" });
+  } else {
+    res
+      .status(400)
+      .json({ message: "There was an error deleting the project" });
+  }
+});
+
 module.exports = {
   getAllGroups,
   addNewGroup,
@@ -123,4 +146,5 @@ module.exports = {
   deleteGroup,
   addGroupTask,
   deleteAllGroup,
+  deleteGroupTask,
 };

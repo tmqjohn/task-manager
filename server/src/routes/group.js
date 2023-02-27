@@ -20,4 +20,6 @@ router
   .put(groupController.updateGroup) // update group
   .delete(groupController.deleteGroup); // delete a group
 
+router.route("/tasks/delete/:groupId").patch(groupController.deleteGroupTask); // delete a task from a group
+
 module.exports = router;
