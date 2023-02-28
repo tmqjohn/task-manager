@@ -82,13 +82,14 @@ const Group = () => {
     }
   }
 
-  function handleShowRemoveGroup(title, id) {
-    setGroupId(id);
+  function handleShowRemoveGroup(title, groupId, taskId) {
+    setGroupId(groupId);
+    setTaskId(taskId);
     setGroupTitle(title);
   }
 
   async function handleRemoveGroup() {
-    const isSuccess = await deleteGroup(groupId, projectId);
+    const isSuccess = await deleteGroup(groupId, projectId, taskId);
 
     if (isSuccess) {
       setProjects();
@@ -188,7 +189,11 @@ const Group = () => {
                       data-bs-target="#confirmDeleteGroupPrompt"
                       data-bs-toggle="modal"
                       onClick={() =>
-                        handleShowRemoveGroup(group.title, group._id)
+                        handleShowRemoveGroup(
+                          group.title,
+                          group._id,
+                          group.tasks
+                        )
                       }
                     >
                       <img src="/remove_big.svg" />
