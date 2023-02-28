@@ -8,9 +8,9 @@ const MainInit = () => {
   const setUserDetails = useUserStore((state) => state.setUserDetails);
 
   useEffect(() => {
-    const fetchData = () => {
-      setUserDetails();
-      setProjects();
+    const fetchData = async () => {
+      await setUserDetails();
+      await setProjects();
     };
 
     fetchData();
