@@ -31,13 +31,21 @@ export async function addNewTask(title, dueDate, note, groupId) {
  * @PATCH request
  * http://serverurl/api/task/:taskId
  */
-export async function updateTask(title, dueDate, note, taskId) {
+export async function updateTask(title, taskId, dueDate, note, status = true) {
   try {
-    await axios.patch(`api/task/${taskId}`, {
-      title,
-      dueDate,
-      note,
-    });
+    if (status) {
+      let statusText = title;
+
+      await axios.patch(`api/task/${taskId}`, {
+        status: statusText,
+      });
+    } else {
+      await axios.patch(`api/task/${taskId}`, {
+        title,
+        dueDate,
+        note,
+      });
+    }
 
     return true;
   } catch (error) {

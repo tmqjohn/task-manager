@@ -82,10 +82,10 @@ const Group = () => {
     }
   }
 
-  function handleShowRemoveGroup(title, groupId, taskId) {
+  function handleShowRemoveGroup(groupTitle, groupId, taskId) {
     setGroupId(groupId);
     setTaskId(taskId);
-    setGroupTitle(title);
+    setGroupTitle(groupTitle);
   }
 
   async function handleRemoveGroup() {
@@ -99,10 +99,13 @@ const Group = () => {
     }
   }
 
-  function handleShowTaskModal(groupId, taskId) {
+  function handleShowTaskModal(groupId, taskId, status = false) {
     setGroupId(groupId);
     setTaskId(taskId);
-    setTaskInputDefaults((prev) => !prev);
+
+    if (!status) {
+      setTaskInputDefaults((prev) => !prev);
+    }
   }
 
   async function handleAddTask(taskTitle, dueDate, noteInput, closeBtnRef) {
@@ -118,10 +121,10 @@ const Group = () => {
   async function handleEditTask(taskTitle, dueDate, noteInput, closeBtnRef) {
     const isSuccess = await updateTask(
       taskTitle,
+      taskId,
       dueDate,
       noteInput,
-      taskId,
-      closeBtnRef
+      (status = false)
     );
 
     if (isSuccess) {
