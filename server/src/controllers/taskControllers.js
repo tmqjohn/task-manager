@@ -69,8 +69,6 @@ const deleteTask = asyncHandler(async (req, res) => {
 
   const result = await Task.findByIdAndDelete(taskId).exec();
 
-  console.log(result);
-
   if (result) {
     res.status(200).json({ message: "Task has been deleted successfully" });
   } else {
@@ -79,13 +77,13 @@ const deleteTask = asyncHandler(async (req, res) => {
 });
 
 /**@ PUT request
- * deletes tasks from a deleted group
+ * deletes tasks from a deleted group and project
  * /api/task/group
  */
 const deleteAllTask = asyncHandler(async (req, res) => {
   const { taskIds } = req.body;
 
-  const result = await Group.deleteMany({ _id: taskIds });
+  const result = await Task.deleteMany({ _id: taskIds });
 
   if (result.acknowledged) {
     res.status(200).json({
