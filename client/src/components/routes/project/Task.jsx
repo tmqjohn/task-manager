@@ -58,7 +58,7 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
                 {task.title}
 
                 <div className="ms-auto d-flex">
-                  {selectedProject[0].owner.includes(userDetails._id) ? (
+                  {selectedProject[0]?.owner.includes(userDetails._id) ? (
                     <>
                       <button
                         className="show-controls btn border border-0 p-0 mx-1"
@@ -99,15 +99,15 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
                   <img src="/more_small.svg" />
                 </button>
 
-                <ul className="dropdown-menu">
+                <ul className="p-0 dropdown-menu">
                   {statusText
                     .filter((status) => status != task.status)
                     .map((taskStatus, i) => (
                       <li key={i}>
                         <button
-                          className={`dropdown-item btn btn-${taskColor(
+                          className={`btn btn-${taskColor(
                             taskStatus
-                          )}`}
+                          )} w-100 border border-0 rounded-0`}
                           onClick={() => {
                             updateStatus(taskStatus, task._id);
                           }}
