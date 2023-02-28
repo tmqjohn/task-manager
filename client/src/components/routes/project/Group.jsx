@@ -12,6 +12,7 @@ import { addNewGroup, updateGroup, deleteGroup } from "../../api/group";
 import { addNewTask, updateTask, deleteTask } from "../../api/task";
 
 import Task from "./Task";
+import Chat from "./Chat";
 import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
 import GroupsModal from "../../layout/ModalLayout/GroupsModal";
 import TasksModal from "../../layout/ModalLayout/TasksModal";
@@ -154,20 +155,29 @@ const Group = () => {
   return (
     <>
       <section className="project-content d-flex flex-column flex-fill py-2">
-        {selectedProject[0]?.owner.includes(userDetails?._id) ? (
-          <>
-            <section className="control-buttons d-flex">
+        <div className="control-buttons mb-2 d-flex">
+          {selectedProject[0]?.owner.includes(userDetails?._id) ? (
+            <>
               <button
-                className="btn btn-primary border border-0 p-1 ms-1 mb-2"
+                className="btn btn-primary border border-0 p-1 me-3"
                 data-bs-target="#addGroupPrompt"
                 data-bs-toggle="modal"
                 onClick={handleShowGroupAdd}
               >
                 <img src="/group_add.svg" /> Add Group
               </button>
-            </section>
-          </>
-        ) : null}
+            </>
+          ) : null}
+
+          <button
+            className="btn btn-primary border border-0 p-1 me-3"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#chatSystem"
+          >
+            <img src="/chat_big.svg" /> Chat
+          </button>
+          <Chat />
+        </div>
 
         <section className="project-group-list flex-fill">
           {groups?.map((group) => (
