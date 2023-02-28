@@ -89,7 +89,6 @@ const TasksModal = ({
                   className="form-control"
                   id={inputId.note}
                   ref={noteInput}
-                  required
                 />
               </section>
             </div>
