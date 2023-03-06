@@ -7,5 +7,5 @@ export function sendMessage(data, socket) {
 }
 
 export function receiveMessage(socket, getMessage) {
-  socket.on("receive-message", (data) => getMessage(data.message));
+  socket.on("receive-message", (data) => getMessage(data));
 }
