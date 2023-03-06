@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import {
@@ -11,40 +11,48 @@ import { sendMessage, receiveMessage } from "../../../helpers/socket";
 
 import "./styles/project.css";
 
-// TODO: declare at MainInit socket and put socket in store
-
 const Chat = () => {
   const selectedProject = useProjectStore((state) => state.selectedProject);
   const userDetails = useUserStore((state) => state.userDetails);
   const socket = useChatStore((state) => state.socket);
 
-  const [message, setMessage] = useState("");
-  const [messageReceived, setMessageReceived] = useState("");
+  const [chatHistory, setChatHistory] = useState([
+    { name: "John Rey Tungul", message: "Hello!" },
+    { name: "Aishia Echague", message: "Hi!" },
+    { name: "Janella Reine Tungul", message: "How are you?" },
+    { name: "Aishia Echague", message: "Mmm" },
+    { name: "John Rey Tungul", message: "Not that great" },
+  ]);
 
   let { projectId } = useParams();
 
-  const sampleChatBubble = [
-    ["Hi!aaaaaa", true, "Janella Reine Tungul"],
-    ["Hello!aaaaaaaaaaaaaaaaaaaa", false, "John Rey Tungul"],
-    ["Hello!aaaaaaaaaa", true, "Aishia Echague"],
-    ["Hello!aaaaaaaaaa", true, "Janella Tungul"],
-    ["Hello!aaaaaaaaaa", false, "John Rey Tungul"],
-  ];
+  const chatRef = useRef();
 
-  function handleSendMessage() {
+  async function handleSendMessage() {
     sendMessage(
       {
         name: userDetails.fullName,
         room: projectId,
-        message,
+        message: chatRef.current.value,
       },
       socket
     );
+
+    await setChatHistory((prev) => [
+      ...prev,
+      {
+        name: userDetails.fullName,
+        room: projectId,
+        message: chatRef.current.value,
+      },
+    ]);
+
+    chatRef.current.value = "";
   }
 
   useEffect(() => {
-    receiveMessage(socket, (message) => {
-      setMessageReceived(message);
+    receiveMessage(socket, (chat) => {
+      setChatHistory((prev) => [...prev, chat]);
     });
   }, [socket]);
 
@@ -60,18 +68,21 @@ const Chat = () => {
           ></button>
         </section>
         <section className="offcanvas-body">
-          {sampleChatBubble.map((chat, i) => (
-            <div className="chat-container d-flex" key={i}>
-              {chat[1] ? (
-                <div className="other-chat-container d-flex flex-column me-auto m-1">
-                  <div className="other-chat-name text-muted">{chat[2]}</div>
-                  <div className="other-chat text-bg-secondary border rounded-5 p-2">
-                    {chat[0]}
-                  </div>
+          {chatHistory.map((chat, i) => (
+            <div className="chat-container d-flex flex-column" key={i}>
+              {chat.name === userDetails.fullName ? (
+                <div
+                  className="me-chat text-bg-primary border rounded-5 p-2 m-1 align-self-end"
+                  key={i}
+                >
+                  {chat.message}
                 </div>
               ) : (
-                <div className="me-chat text-bg-primary border rounded-5 p-2 ms-auto m-1">
-                  {chat[0]}
+                <div className="other-chat-container flex-shrink-0 d-flex flex-column m-1 align-self-start">
+                  <div className="other-chat-name text-muted">{chat.name}</div>
+                  <div className="other-chat text-bg-secondary border rounded-5 p-2 align-self-baseline">
+                    {chat.message}
+                  </div>
                 </div>
               )}
             </div>
@@ -80,10 +91,7 @@ const Chat = () => {
         <section className="offcanvas-footer d-flex flex-row border border-top p-3">
           <div className="input-send-divider w-100 h-100 me-2">
             <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <textarea
-                className="chat-input form-control"
-                onChange={(event) => setMessage(event.target.value)}
-              />
+              <textarea className="chat-input form-control" ref={chatRef} />
             </form>
             <button className="btn border border-0 p-0 pe-1 mt-1">
               <img src="/attach_small.svg" /> Attach Files
