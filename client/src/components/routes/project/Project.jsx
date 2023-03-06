@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import { useProjectStore, useUserStore } from "../../../store/store";
+import {
+  useProjectStore,
+  useUserStore,
+  useChatStore,
+} from "../../../store/store";
+
+import { joinProjectChat } from "../../../helpers/socket";
 
 import ManageProject from "./ManageProject";
 import Group from "./Group";
@@ -15,14 +21,21 @@ const Projects = () => {
       setSelectedProject: state.setSelectedProject,
     })
   );
+  const socket = useChatStore((state) => state.socket);
+
   const [projectDefaults, setProjectsDefaults] = useState(false);
+  const [prevProjectId, setPrevProjectId] = useState("");
 
   let { projectId } = useParams();
   let manageBtn;
 
   useEffect(() => {
+    setPrevProjectId(projectId);
+
+    joinProjectChat({ projectId, prevProjectId }, socket);
+
     setSelectedProject(projectId);
-  }, [projects, projectId]);
+  }, [projectId, projects]);
 
   function handleDefaultInput() {
     setProjectsDefaults((prev) => !prev);
