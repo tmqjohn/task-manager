@@ -3,6 +3,8 @@ import { create } from "zustand";
 import { getUserDetails, getUserId } from "../components/api/user";
 import { getUserProjects } from "../components/api/projects";
 
+import io from "socket.io-client";
+
 export const useUserStore = create((set, get) => ({
   userDetails: {},
   setUserDetails: async () => {
@@ -32,4 +34,8 @@ export const useProjectStore = create((set, get) => ({
 export const useGroupStore = create((set, get) => ({
   groups: [],
   setGroups: async (groups) => set({ groups: groups }),
+}));
+
+export const useChatStore = create((set, get) => ({
+  socket: io.connect(import.meta.env.VITE_SERVER_URL),
 }));
