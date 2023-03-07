@@ -28,6 +28,10 @@ const ProjectSchema = new mongoose.Schema(
         ref: "Group",
       },
     ],
+    chatHistory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Chat",
+    },
   },
   {
     timestamps: true,
