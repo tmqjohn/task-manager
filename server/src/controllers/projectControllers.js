@@ -4,6 +4,7 @@ const Project = require("../schema/ProjectSchema");
 const User = require("../schema/UserSchema");
 const Group = require("../schema/GroupSchema");
 const Task = require("../schema/TaskSchema");
+const Chat = require("../schema/ChatSchema");
 
 /**@ GET request
  * gets all the projects
@@ -46,6 +47,10 @@ const getAllProjects = asynchHandler(async (req, res) => {
         })
       );
 
+      const chatHistoryDetails = await Chat.findById(
+        project.chatHistory
+      ).exec();
+
       const ownerName = ownerList.map((owner) => owner.fullName);
       const membersName = membersList.map((member) => member.fullName);
 
@@ -54,6 +59,7 @@ const getAllProjects = asynchHandler(async (req, res) => {
         ownerName,
         membersName,
         groupDetails,
+        chatHistoryDetails,
       };
     })
   );
@@ -103,6 +109,10 @@ const getUserProjects = asynchHandler(async (req, res) => {
         })
       );
 
+      const chatHistoryDetails = await Chat.findById(
+        project.chatHistory
+      ).exec();
+
       const ownerName = ownerList.map((owner) => owner.fullName);
       const membersName = membersList.map((member) => member.fullName);
 
@@ -111,6 +121,7 @@ const getUserProjects = asynchHandler(async (req, res) => {
         ownerName,
         membersName,
         groupDetails,
+        chatHistoryDetails,
       };
     })
   );
@@ -123,13 +134,14 @@ const getUserProjects = asynchHandler(async (req, res) => {
  * /api/project
  */
 const addProject = asynchHandler(async (req, res) => {
-  const { title, desc, owner, members } = req.body;
+  const { title, desc, owner, members, chatId } = req.body;
 
   const newProject = new Project({
     title,
     desc,
     owner,
     members,
+    chatHistory: chatId,
   });
 
   const savedProject = await newProject.save();
@@ -148,12 +160,18 @@ const addProject = asynchHandler(async (req, res) => {
 
   const groupDetails = [];
 
+  const chatHistoryDetails = await Chat.findById(newProject.chatHistory).exec();
+
   const ownerName = ownerList.map((owner) => owner.fullName);
   const membersName = membersList.map((member) => member.fullName);
 
-  res
-    .status(200)
-    .json({ ...savedProject.toObject(), ownerName, membersName, groupDetails });
+  res.status(200).json({
+    ...savedProject.toObject(),
+    ownerName,
+    membersName,
+    groupDetails,
+    chatHistoryDetails,
+  });
 });
 
 /**@ PATCH request
@@ -201,13 +219,21 @@ const updateProject = asynchHandler(async (req, res) => {
     })
   );
 
+  const chatHistoryDetails = await Chat.findById(result.chatHistory).exec();
+
   const ownerName = ownerList.map((owner) => owner.fullName);
   const membersName = membersList.map((member) => member.fullName);
 
   if (result === foundProject) {
     res
       .status(200)
-      .json({ ...result.toObject(), ownerName, membersName, groupDetails });
+      .json({
+        ...result.toObject(),
+        ownerName,
+        membersName,
+        groupDetails,
+        chatHistoryDetails,
+      });
   } else {
     res
       .status(400)
