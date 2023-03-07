@@ -52,9 +52,8 @@ const deleteChat = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
 
   const result = await Chat.findByIdAndDelete(chatId).exec();
-  console.log(result);
 
-  if (result.acknowledged) {
+  if (result) {
     res.status(200).json({ message: "Chat successfully deleted" });
   } else {
     res.status(400).json({ message: "There was an error deleting the chat" });
