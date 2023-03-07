@@ -16,11 +16,7 @@ const getAllChats = asyncHandler(async (req, res) => {
  * /api/chat
  */
 const addNewChat = asyncHandler(async (req, res) => {
-  const { chatHistory } = req.body;
-
-  const newChat = new Chat({
-    chatHistory,
-  });
+  const newChat = new Chat();
 
   const savedChat = await newChat.save();
 
@@ -33,11 +29,11 @@ const addNewChat = asyncHandler(async (req, res) => {
  */
 const updateChat = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
-  const { chatHistory } = req.body;
+  const { newChat } = req.body;
 
   const foundChat = await Chat.findById(chatId).exec();
 
-  foundChat.chatHistory = [...foundChat.chatHistory, ...chatHistory];
+  foundChat.chatHistory = [...foundChat.chatHistory, newChat];
 
   const result = await foundChat.save();
 
