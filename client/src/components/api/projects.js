@@ -25,11 +25,13 @@ export async function getUserProjects(id) {
 
 export async function createProject(title, desc, owner, members) {
   try {
+    const chatId = await axios.post("api/chat");
     const response = await axios.post("api/project/", {
       title,
       desc,
       owner,
       members,
+      chatId: chatId.data._id,
     });
 
     return response.data;
@@ -64,7 +66,7 @@ export async function updateProject(id, title, desc, owner, members) {
  * @DELETE request
  * http://serverurl/api/projects/:projectId
  */
-export async function deleteProject(id, owner, groupIds, taskIds) {
+export async function deleteProject(id, owner, groupIds, taskIds, chatId) {
   try {
     await axios.put("api/task/group", {
       taskIds,
@@ -72,6 +74,7 @@ export async function deleteProject(id, owner, groupIds, taskIds) {
     await axios.put("api/group/project", {
       groupIds,
     });
+    await axios.delete(`api/chat/${chatId}`);
     await axios.delete(`api/project/${id}`);
 
     const response = await getUserProjects(owner);

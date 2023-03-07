@@ -187,7 +187,8 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
       selectedProject[0]._id,
       selectedProject[0].owner[0],
       selectedProject[0].groups,
-      selectedProject[0].groupDetails.map((task) => task.tasks)[0]
+      selectedProject[0].groupDetails.map((task) => task.tasks)[0],
+      selectedProject[0].chatHistory
     );
 
     if (updatedProjects) {
