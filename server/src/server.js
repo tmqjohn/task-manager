@@ -27,18 +27,19 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//initialize server routes
+// initialize server routes
 app.use("/", routes);
 
+// socket events
 io.on("connection", (socket) => {
+  console.log(`new connection: ${socket.id}`);
+
   socket.on("join-room", (data) => {
     if (socket.rooms.has(data.prevProjectId)) {
       socket.leave(data.prevProjectId);
     }
 
     socket.join(data.projectId);
-
-    console.log(`A connection is in room ${data.projectId}`);
   });
 
   socket.on("send-message", (data) => {
