@@ -7,52 +7,66 @@ import {
   useChatStore,
 } from "../../../store/store";
 
+import { updateNewChat } from "../../api/chat";
+
 import { sendMessage, receiveMessage } from "../../../helpers/socket";
 
 import "./styles/project.css";
 
 const Chat = () => {
-  const selectedProject = useProjectStore((state) => state.selectedProject);
+  const { selectedProject, setProjects } = useProjectStore((state) => ({
+    selectedProject: state.selectedProject,
+    setProjects: state.setProjects,
+  }));
   const userDetails = useUserStore((state) => state.userDetails);
   const socket = useChatStore((state) => state.socket);
 
-  const [chatHistory, setChatHistory] = useState([
-    { name: "John Rey Tungul", message: "Hello!" },
-    { name: "Aishia Echague", message: "Hi!" },
-    { name: "Janella Reine Tungul", message: "How are you?" },
-    { name: "Aishia Echague", message: "Mmm" },
-    { name: "John Rey Tungul", message: "Not that great" },
-  ]);
+  const [chatHistory, setChatHistory] = useState([]);
+
+  const chatRef = useRef();
+  const chatScrollEndRef = useRef();
 
   let { projectId } = useParams();
 
-  const chatRef = useRef();
+  useEffect(() => {
+    setChatHistory(selectedProject[0]?.chatHistoryDetails.chatHistory);
+
+    console.log(chatScrollEndRef);
+
+    chatScrollEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [selectedProject]);
 
   async function handleSendMessage() {
-    sendMessage(
-      {
-        name: userDetails.fullName,
-        room: projectId,
-        message: chatRef.current.value,
-      },
-      socket
-    );
+    const newChat = {
+      name: userDetails.fullName,
+      message: chatRef.current.value,
+    };
+    const chatId = selectedProject[0].chatHistory;
 
-    await setChatHistory((prev) => [
-      ...prev,
-      {
-        name: userDetails.fullName,
-        room: projectId,
-        message: chatRef.current.value,
-      },
-    ]);
+    const isSuccess = await updateNewChat(newChat, chatId);
 
-    chatRef.current.value = "";
+    if (isSuccess) {
+      sendMessage({ ...newChat, room: projectId }, socket);
+
+      await setChatHistory((prev) => [
+        ...prev,
+        { ...newChat, room: projectId },
+      ]);
+
+      setProjects();
+
+      chatRef.current.value = "";
+      chatScrollEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }
 
   useEffect(() => {
     receiveMessage(socket, (chat) => {
       setChatHistory((prev) => [...prev, chat]);
+
+      setProjects();
+
+      chatScrollEndRef.current?.scrollIntoView({ behavior: "smooth" });
     });
   }, [socket]);
 
@@ -68,7 +82,7 @@ const Chat = () => {
           ></button>
         </section>
         <section className="offcanvas-body">
-          {chatHistory.map((chat, i) => (
+          {chatHistory?.map((chat, i) => (
             <div className="chat-container d-flex flex-column" key={i}>
               {chat.name === userDetails.fullName ? (
                 <div
@@ -87,6 +101,7 @@ const Chat = () => {
               )}
             </div>
           ))}
+          <div className="scroll-end-placeholder" ref={chatScrollEndRef} />
         </section>
         <section className="offcanvas-footer d-flex flex-row border border-top p-3">
           <div className="input-send-divider w-100 h-100 me-2">
