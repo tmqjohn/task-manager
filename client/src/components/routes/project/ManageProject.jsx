@@ -183,11 +183,17 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   }
 
   async function handleDelete() {
+    let taskIds = [];
+
+    selectedProject[0].groupDetails.map((task) =>
+      task.tasks.map((taskId) => taskIds.push(taskId))
+    );
+
     const updatedProjects = await deleteProject(
       selectedProject[0]._id,
       selectedProject[0].owner[0],
       selectedProject[0].groups,
-      selectedProject[0].groupDetails.map((task) => task.tasks)[0],
+      taskIds,
       selectedProject[0].chatHistory
     );
 
