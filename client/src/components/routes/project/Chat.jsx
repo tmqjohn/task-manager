@@ -30,11 +30,11 @@ const Chat = () => {
 
   useEffect(() => {
     setChatHistory(selectedProject[0]?.chatHistoryDetails.chatHistory);
-
-    console.log(chatScrollEndRef);
-
-    chatScrollEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [selectedProject]);
+
+  useEffect(() => {
+    chatScrollEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory, selectedProject]);
 
   async function handleSendMessage() {
     const newChat = {
@@ -56,7 +56,6 @@ const Chat = () => {
       setProjects();
 
       chatRef.current.value = "";
-      chatScrollEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }
 
@@ -65,8 +64,6 @@ const Chat = () => {
       setChatHistory((prev) => [...prev, chat]);
 
       setProjects();
-
-      chatScrollEndRef.current?.scrollIntoView({ behavior: "smooth" });
     });
   }, [socket]);
 
@@ -85,14 +82,16 @@ const Chat = () => {
           {chatHistory?.map((chat, i) => (
             <div className="chat-container d-flex flex-column" key={i}>
               {chat.name === userDetails.fullName ? (
-                <div
-                  className="me-chat text-bg-primary border rounded-5 p-2 m-1 align-self-end"
-                  key={i}
-                >
-                  {chat.message}
+                <div className="me-chat-container d-flex align-self-end">
+                  <div
+                    className="me-chat-message text-bg-primary border rounded-5 p-2 m-1"
+                    key={i}
+                  >
+                    {chat.message}
+                  </div>
                 </div>
               ) : (
-                <div className="other-chat-container flex-shrink-0 d-flex flex-column m-1 align-self-start">
+                <div className="other-chat-container d-flex flex-shrink-0 flex-column m-1">
                   <div className="other-chat-name text-muted">{chat.name}</div>
                   <div className="other-chat text-bg-secondary border rounded-5 p-2 align-self-baseline">
                     {chat.message}
