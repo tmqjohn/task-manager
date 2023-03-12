@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import ErrorPage from "./error/ErrorPage";
 
@@ -80,15 +81,19 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <div className="App">
-      <RouterProvider router={router} />
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        pauseOnFocusLoss={false}
-        draggable={false}
-      />
-    </div>
+    <>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <div className="App">
+          <RouterProvider router={router} />
+          <ToastContainer
+            position="top-center"
+            autoClose={3000}
+            pauseOnFocusLoss={false}
+            draggable={false}
+          />
+        </div>
+      </GoogleOAuthProvider>
+    </>
   );
 };
 
