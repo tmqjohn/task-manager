@@ -136,15 +136,13 @@ const getUserProjects = asynchHandler(async (req, res) => {
 const addProject = asynchHandler(async (req, res) => {
   const { title, desc, owner, members, chatId } = req.body;
 
-  const newProject = new Project({
+  const newProject = await Project.create({
     title,
     desc,
     owner,
     members,
     chatHistory: chatId,
   });
-
-  const savedProject = await newProject.save();
 
   const ownerList = await Promise.all(
     newProject.owner.map(
@@ -166,7 +164,7 @@ const addProject = asynchHandler(async (req, res) => {
   const membersName = membersList.map((member) => member.fullName);
 
   res.status(200).json({
-    ...savedProject.toObject(),
+    ...newProject.toObject(),
     ownerName,
     membersName,
     groupDetails,
@@ -225,15 +223,13 @@ const updateProject = asynchHandler(async (req, res) => {
   const membersName = membersList.map((member) => member.fullName);
 
   if (result === foundProject) {
-    res
-      .status(200)
-      .json({
-        ...result.toObject(),
-        ownerName,
-        membersName,
-        groupDetails,
-        chatHistoryDetails,
-      });
+    res.status(200).json({
+      ...result.toObject(),
+      ownerName,
+      membersName,
+      groupDetails,
+      chatHistoryDetails,
+    });
   } else {
     res
       .status(400)

@@ -16,11 +16,9 @@ const getAllChats = asyncHandler(async (req, res) => {
  * /api/chat
  */
 const addNewChat = asyncHandler(async (req, res) => {
-  const newChat = new Chat();
+  const newChat = await Chat.create({});
 
-  const savedChat = await newChat.save();
-
-  return res.status(200).json(savedChat);
+  return res.status(200).json(newChat);
 });
 
 /**@ PATCH request

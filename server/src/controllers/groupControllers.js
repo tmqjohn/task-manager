@@ -29,13 +29,11 @@ const getAllGroups = asyncHandler(async (req, res) => {
 const addNewGroup = asyncHandler(async (req, res) => {
   const { title } = req.body;
 
-  const newGroup = new Group({
+  const newGroup = await Group.create({
     title,
   });
 
-  const savedGroup = await newGroup.save();
-
-  return res.status(200).json(savedGroup);
+  return res.status(200).json(newGroup);
 });
 
 /**@ PUT request

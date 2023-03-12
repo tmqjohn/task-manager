@@ -22,15 +22,13 @@ const getAllTasks = asyncHandler(async (req, res) => {
 const addNewTask = asyncHandler(async (req, res) => {
   const { title, dueDate, note } = req.body;
 
-  const newTask = new Task({
+  const newTask = await Task.create({
     title,
     dueDate,
     note,
   });
 
-  const result = await newTask.save();
-
-  if (result) {
+  if (newTask) {
     res.status(200).json(newTask);
   } else {
     res.status(500).json({ message: "There was an error creating a new task" });
