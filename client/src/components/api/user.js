@@ -139,8 +139,9 @@ export async function googleLogin(googleAccessToken) {
     });
 
     let { token } = response.data;
+    let { access_token } = googleAccessToken;
 
-    localStorage.setItem("googleAccessToken,", googleAccessToken);
+    localStorage.setItem("googleAccessToken", access_token);
     localStorage.setItem("token", token);
 
     return true;
@@ -159,6 +160,7 @@ export function getUserId() {
 
 export async function logoutUser() {
   localStorage.removeItem("token");
+  localStorage.removeItem("googleAccessToken");
 
   toast.dismiss();
   toast.success("Logged out successfully");
