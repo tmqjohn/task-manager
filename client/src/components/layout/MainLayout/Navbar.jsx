@@ -8,7 +8,7 @@ import { useUserStore } from "../../../store/store";
 import Profile from "../../routes/root/Profile";
 
 const Navbar = () => {
-  const { userDetails, clearUserDetails } = useUserStore(
+  const { clearUserDetails } = useUserStore(
     (state) => ({
       userDetails: state.userDetails,
       clearUserDetails: state.clearUserDetails,
@@ -40,36 +40,19 @@ const Navbar = () => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse" id="navbarDropdown">
-          <ul className="navbar-nav ms-auto">
-            <div className="dropdown dropstart">
-              <button
-                className="btn dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-              >
-                Hi, {userDetails?.fullName}!
-              </button>
-              <ul className="dropdown-menu dropdown-menu-start w-10">
-                <li>
-                  <button
-                    className="btn dropdown-item"
-                    data-bs-toggle="modal"
-                    data-bs-target="#profilePrompt"
-                    onClick={() => setDefaultProfileInputs((prev) => !prev)}
-                  >
-                    Profile
-                  </button>
-                </li>
-                <hr className="dropdown-divider" />
-                <li>
-                  <button className="btn dropdown-item" onClick={logout}>
-                    Logout
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </ul>
+        <div className="d-flex ms-auto">
+          <button
+            className="btn border-0"
+            data-bs-toggle="modal"
+            data-bs-target="#profilePrompt"
+            onClick={() => setDefaultProfileInputs((prev) => !prev)}
+          >
+            <img src="/profile.svg" /> Profile
+          </button>
+          <div className="border-end"></div>
+          <button className="btn border-0" onClick={logout}>
+            <img src="/logout.svg" /> Logout
+          </button>
         </div>
       </nav>
 
