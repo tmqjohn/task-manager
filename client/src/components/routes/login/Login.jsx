@@ -64,7 +64,7 @@ const LoginPage = () => {
         </button>
       </form>
 
-      <GoogleLogin formText={"login"} />
+      <GoogleLogin method={"login"} />
 
       <p className="mt-2 text-center">
         Don't have an account?{" "}

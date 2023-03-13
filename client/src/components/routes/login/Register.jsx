@@ -104,7 +104,7 @@ const Register = () => {
         </button>
       </form>
 
-      <GoogleLogin formText={"sign-up"} />
+      <GoogleLogin method={"sign-up"} />
     </div>
   );
 };
