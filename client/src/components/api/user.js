@@ -29,7 +29,7 @@ export async function loginUser(usernameInput, password) {
 /**
  * @POST request
  * @RegisterPage
- * http://serverurl/api/auth/register
+ * http://serverurl/api/auth/user/register
  */
 export async function registerUser(credentials) {
   const { inputUser, inputPass, inputName, inputEmail } = credentials;
@@ -84,6 +84,66 @@ export async function getUserDetails(username) {
     );
 
     return response.data;
+  } catch (error) {
+    toast.dismiss();
+    toast.error(error.response ? error.response.data.message : error.message);
+  }
+}
+
+/**
+ * @POST request
+ * @GoogleRegister
+ * http://serverurl/api/auth/user/registerGoogle
+ */
+export async function googleRegister(googleAccessToken) {
+  try {
+    const googleUserInfo = await axios
+      .get("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: {
+          Authorization: `Bearer ${googleAccessToken.access_token}`,
+        },
+      })
+      .then((res) => res.data);
+
+    await axios.post(`/api/auth/user/registerGoogle`, {
+      googleId: googleUserInfo.sub,
+      email: googleUserInfo.email,
+      fullName: googleUserInfo.name,
+    });
+
+    return { googleRegisterToken: googleAccessToken, googleUserInfo };
+  } catch (error) {
+    toast.dismiss();
+    toast.error(error.response ? error.response.data.message : error.message);
+  }
+}
+
+/**
+ * @POST request
+ * @GoogleLogin
+ * http://serverurl/api/auth/user/loginGoogle
+ */
+export async function googleLogin(googleAccessToken) {
+  try {
+    const googleUserInfo = await axios
+      .get("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: {
+          Authorization: `Bearer ${googleAccessToken.access_token}`,
+        },
+      })
+      .then((res) => res.data);
+
+    const response = await axios.post("/api/auth/user/loginGoogle", {
+      googleId: googleUserInfo.sub,
+      googleEmail: googleUserInfo.email,
+    });
+
+    let { token } = response.data;
+
+    localStorage.setItem("googleAccessToken,", googleAccessToken);
+    localStorage.setItem("token", token);
+
+    return true;
   } catch (error) {
     toast.dismiss();
     toast.error(error.response ? error.response.data.message : error.message);
