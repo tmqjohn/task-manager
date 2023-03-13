@@ -152,6 +152,7 @@ const registerNewGoogleUser = asyncHandler(async (req, res) => {
     username: googleId,
     email,
     fullName,
+    googleId,
   });
 
   return res.status(201).json({ message: "Registration Successful" });
