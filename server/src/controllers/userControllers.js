@@ -44,13 +44,11 @@ const getUser = asyncHandler(async (req, res) => {
 });
 
 /**@ POST request
- * @ login user with JWT token
- * /api/auth/login
+ * @ login user, return JWT token
+ * /api/auth/user/login
  */
 const loginUser = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
-
-  /**TODO: merge incorrect username and password */
 
   const foundUser = await User.findOne({ username }).exec();
 
@@ -75,14 +73,41 @@ const loginUser = asyncHandler(async (req, res) => {
 
   return res.status(200).json({
     message: "Login successful",
-    username: foundUser.username,
+    token,
+  });
+});
+
+/**@ POST request
+ * @ login user using google login, return JWT token
+ * /api/auth/user/loginGoogle
+ */
+const googleLoginUser = asyncHandler(async (req, res) => {
+  const { googleId } = req.body;
+
+  const foundUser = await User.findOne({ username: googleId }).exec();
+
+  if (!foundUser) {
+    return res.status(404).json({ message: "Google account not registered" });
+  }
+
+  const token = jwt.sign(
+    {
+      userId: foundUser._id,
+      username: foundUser.username,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "24h" }
+  );
+
+  return res.status(200).json({
+    message: "Login successful",
     token,
   });
 });
 
 /**@ POST request
  * @ register new user
- * /api/auth/register
+ * /api/auth/user/register
  */
 const registerNewUser = asyncHandler(async (req, res) => {
   const { username, password, fullName, email } = req.body;
@@ -105,12 +130,36 @@ const registerNewUser = asyncHandler(async (req, res) => {
     email,
   });
 
-  return res.status(201).json({ message: "Registration successfully" });
+  return res.status(201).json({ message: "Registration successful" });
+});
+
+/**@ POST request
+ * @ register new google uiser
+ * /api/auth/user/registerGoogle
+ */
+const registerNewGoogleUser = asyncHandler(async (req, res) => {
+  const { googleId, email, fullName } = req.body;
+
+  const foundEmail = await User.findOne({ email }).exec();
+
+  if (foundEmail) {
+    return res
+      .status(400)
+      .json({ message: "The google email has already been registered" });
+  }
+
+  await User.create({
+    username: googleId,
+    email,
+    fullName,
+  });
+
+  return res.status(201).json({ message: "Registration Successful" });
 });
 
 /**@ PUT request
  * @ edit user details
- * /api/auth/:username
+ * /api/auth/user/:username
  */
 const updateUser = asyncHandler(async (req, res) => {
   const { password, email, fullName } = req.body;
@@ -216,7 +265,9 @@ module.exports = {
   getAllUsers,
   getUser,
   loginUser,
+  googleLoginUser,
   registerNewUser,
+  registerNewGoogleUser,
   updateUser,
   generateOtp,
   verifyOtp,
