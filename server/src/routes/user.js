@@ -14,10 +14,13 @@ router
   .put(userControllers.updateUser); // update user details
 
 router.route("/login").post(userControllers.loginUser); // login request for token
-router.route("/register").post(userControllers.registerNewUser); // register new user
+router.route("/loginGoogle").post(userControllers.googleLoginUser); // login request via google
 
-router.route("/recovery/generateOTP").post(userControllers.generateOtp);
-router.route("/recovery/verifyOTP").post(userControllers.verifyOtp);
+router.route("/register").post(userControllers.registerNewUser); // register new user
+router.route("/registerGoogle").post(userControllers.registerNewGoogleUser); // register new user via google credentials
+
+router.route("/recovery/generateOTP").post(userControllers.generateOtp); // generate OTP for password reset
+router.route("/recovery/verifyOTP").post(userControllers.verifyOtp); // verify OTP for password reset
 
 router
   .route("/resetPassword/:username")
