@@ -64,18 +64,14 @@ const Main = () => {
         <h6 className="main-section-title pb-2">
           Good day, {userDetails.fullName}!
         </h6>
-
-        {/* TODO: populate projects owned */}
         <h2>Projects You Manage</h2>
 
-        <div className="owned-projects container-fluid">
+        <div className="owned-projects container-fluid mb-3">
           <div className="row mt-1 g-3">{projectsOwned}</div>
         </div>
 
-        {/* TODO: populate projects you're member */}
-
-        <div className="in-projects mt-3 container-fluid">
-          <h2>Projects You're In</h2>
+        <h2>Projects You're In</h2>
+        <div className="in-projects container-fluid">
           <div className="row mt-1 g-3">{projectsIn}</div>
         </div>
       </div>
