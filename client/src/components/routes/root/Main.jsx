@@ -67,12 +67,25 @@ const Main = () => {
         <h2>Projects You Manage</h2>
 
         <div className="owned-projects container-fluid mb-3">
-          <div className="row mt-1 g-3">{projectsOwned}</div>
+          <div className="row mt-1 g-3">
+            {projectsOwned.filter((project) => project !== undefined).length ? (
+              projectsOwned
+            ) : (
+              <div className="text-secondary">No projects to show</div>
+            )}
+          </div>
         </div>
 
         <h2>Projects You're In</h2>
         <div className="in-projects container-fluid">
-          <div className="row mt-1 g-3">{projectsIn}</div>
+          <div className="row mt-1 g-3">
+            {" "}
+            {projectsIn.filter((project) => project !== undefined).length ? (
+              projectsIn
+            ) : (
+              <div className="text-secondary">No projects to show</div>
+            )}
+          </div>
         </div>
       </div>
     </>
