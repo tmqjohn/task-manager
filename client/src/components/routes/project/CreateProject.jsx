@@ -71,15 +71,10 @@ const CreateProject = ({ clearInputs }) => {
       const foundUser = await getUserDetails(searchValue);
 
       if (!foundUser.message) {
-        if (users.includes(foundUser.fullName)) {
-          searchInput.current.value = "";
-          searchInput.focus;
-
-          toast.dismiss();
-          return toast.error("User is already added in the project");
-        }
-
-        if (searchValue === userDetails.username) {
+        if (
+          searchValue === userDetails.username ||
+          searchValue === userDetails.email
+        ) {
           searchInput.current.value = "";
           searchInput.focus;
 
@@ -87,7 +82,21 @@ const CreateProject = ({ clearInputs }) => {
           return toast.error("Owner cannot be added as member");
         }
 
-        if (owners.includes(foundUser.fullName)) {
+        if (
+          users.includes(foundUser.fullName) ||
+          users.includes(foundUser.email)
+        ) {
+          searchInput.current.value = "";
+          searchInput.focus;
+
+          toast.dismiss();
+          return toast.error("User is already added in the project");
+        }
+
+        if (
+          owners.includes(foundUser.fullName) ||
+          owners.includes(foundUser.email)
+        ) {
           removeUsers(
             foundUser.fullName,
             ownersId,
@@ -97,7 +106,10 @@ const CreateProject = ({ clearInputs }) => {
           );
         }
 
-        if (members.includes(foundUser.fullName)) {
+        if (
+          members.includes(foundUser.fullName) ||
+          members.includes(foundUser.email)
+        ) {
           removeUsers(
             foundUser.fullName,
             membersId,

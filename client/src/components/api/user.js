@@ -73,14 +73,16 @@ export async function updateUser(username, password, fullName, email) {
  * @GET request
  * http://serverurl/api/auth/user/:id
  */
-export async function getUserDetails(username) {
+export async function getUserDetails(searchUserInput) {
   try {
     const token = localStorage.getItem("token");
     if (!token) return console.log("No Token Found");
     let decodedToken = jwtDecode(token);
 
     const response = await axios.get(
-      `api/auth/user/${username ? username : decodedToken.username}`
+      `api/auth/user/${
+        searchUserInput ? searchUserInput : decodedToken.username
+      }`
     );
 
     return response.data;
