@@ -25,14 +25,6 @@ const Navbar = () => {
         <a className="navbar-brand" href="/">
           Task Manager
         </a>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarDropdown"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
         <div className="d-flex ms-auto">
           <button
             className="btn border-0"
