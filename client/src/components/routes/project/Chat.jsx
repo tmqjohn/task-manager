@@ -102,10 +102,20 @@ const Chat = () => {
           ))}
           <div className="scroll-end-placeholder" ref={chatScrollEndRef} />
         </section>
-        <section className="offcanvas-footer d-flex flex-row border border-top p-3">
+        <section className="offcanvas-footer d-flex border border-top p-3">
           <div className="input-send-divider w-100 h-100 me-2">
-            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <textarea className="chat-input form-control" ref={chatRef} />
+            <form
+              autoComplete="off"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendMessage();
+              }}
+            >
+              <input
+                className="chat-input form-control"
+                ref={chatRef}
+                onSubmit={() => handleSendMessage()}
+              />
             </form>
             <button className="btn border border-0 p-0 pe-1 mt-1">
               <img src="/attach_small.svg" /> Attach Files
