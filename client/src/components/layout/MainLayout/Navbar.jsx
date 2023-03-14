@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { shallow } from "zustand/shallow";
 
 import { logoutUser } from "../../api/user";
 import { useUserStore } from "../../../store/store";
@@ -8,17 +7,11 @@ import { useUserStore } from "../../../store/store";
 import Profile from "../../routes/root/Profile";
 
 const Navbar = () => {
-  const { clearUserDetails } = useUserStore(
-    (state) => ({
-      userDetails: state.userDetails,
-      clearUserDetails: state.clearUserDetails,
-    }),
-    shallow
-  );
-
-  const navigate = useNavigate();
+  const clearUserDetails = useUserStore((state) => state.clearUserDetails);
 
   const [defaultProfileInputs, setDefaultProfileInputs] = useState(false);
+
+  const navigate = useNavigate();
 
   function logout() {
     logoutUser();
