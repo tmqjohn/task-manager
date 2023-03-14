@@ -31,8 +31,9 @@ const getUser = asyncHandler(async (req, res) => {
   if (username === "")
     return res.status(404).json({ message: "Invalid username" });
 
-  const foundUser = await User.findOne({ username })
-    .select(["-password", "-createdAt", "-updatedAt"])
+  const foundUser = await User.findOne({
+    $or: [{ username }, { email: username }],
+  })
     .lean()
     .exec();
 
