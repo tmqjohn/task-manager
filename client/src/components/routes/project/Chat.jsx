@@ -115,10 +115,15 @@ const Chat = () => {
                 className="chat-input form-control"
                 ref={chatRef}
                 onSubmit={() => handleSendMessage()}
+                required
               />
             </form>
             <button className="btn border border-0 p-0 pe-1 mt-1">
-              <img src="/attach_small.svg" /> Attach Files
+              <img
+                width="20"
+                src="https://img.icons8.com/color/48/null/google-drive--v2.png"
+              />{" "}
+              Google Drive
             </button>
           </div>
           <div className="send-button">
