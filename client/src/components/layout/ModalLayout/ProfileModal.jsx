@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 const ProfileModal = ({
   id,
@@ -14,12 +14,23 @@ const ProfileModal = ({
   const emailInput = useRef();
   const closeBtnRef = useRef();
 
+  const [disableForm, setDisableForm] = useState();
+
   useEffect(() => {
-    usernameInput.current.value = userDetails.username;
+    if (userDetails.username != userDetails.googleId) {
+      usernameInput.current.value = userDetails.username;
+      setDisableForm(false);
+    }
+
+    if (userDetails.username === userDetails.googleId) {
+      usernameInput.current.value = "";
+      setDisableForm(true);
+    }
+
     passwordInput.current.value = "";
     fullNameInput.current.value = userDetails.fullName;
     emailInput.current.value = userDetails.email;
-  }, [defaultProfileInputs]);
+  }, [defaultProfileInputs, disableForm]);
 
   async function handleSubmit() {
     updateProfile(
@@ -29,6 +40,77 @@ const ProfileModal = ({
       closeBtnRef
     );
   }
+
+  const formControls = (
+    <>
+      <div className="modal-body">
+        <section className="mb-3">
+          <label htmlFor={inputId.username} className="col-form-label">
+            Username:
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id={inputId.username}
+            ref={usernameInput}
+            disabled
+          />
+        </section>
+        <section className="mb-3">
+          <label htmlFor={inputId.password} className="col-form-label">
+            Password:
+          </label>
+          <input
+            type="password"
+            className="form-control"
+            id={inputId.password}
+            ref={passwordInput}
+          />
+        </section>
+        <section className="mb-3">
+          <label htmlFor={inputId.fullName} className="col-form-label">
+            Full Name:
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id={inputId.fullName}
+            ref={fullNameInput}
+            required
+          />
+        </section>
+        <section className="mb-3">
+          <label htmlFor={inputId.email} className="col-form-label">
+            Email:
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id={inputId.email}
+            ref={emailInput}
+            required
+          />
+        </section>
+      </div>
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          data-bs-dismiss="modal"
+          ref={closeBtnRef}
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={handleSubmit}
+        >
+          Update
+        </button>
+      </div>
+    </>
+  );
 
   return (
     <div
@@ -49,72 +131,11 @@ const ProfileModal = ({
             ></button>
           </div>
           <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-            <div className="modal-body">
-              <section className="mb-3">
-                <label htmlFor={inputId.username} className="col-form-label">
-                  Username:
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id={inputId.username}
-                  ref={usernameInput}
-                  disabled
-                />
-              </section>
-              <section className="mb-3">
-                <label htmlFor={inputId.password} className="col-form-label">
-                  Password:
-                </label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id={inputId.password}
-                  ref={passwordInput}
-                />
-              </section>
-              <section className="mb-3">
-                <label htmlFor={inputId.fullName} className="col-form-label">
-                  Full Name:
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id={inputId.fullName}
-                  ref={fullNameInput}
-                  required
-                />
-              </section>
-              <section className="mb-3">
-                <label htmlFor={inputId.email} className="col-form-label">
-                  Email:
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id={inputId.email}
-                  ref={emailInput}
-                  required
-                />
-              </section>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-                ref={closeBtnRef}
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleSubmit}
-              >
-                Update
-              </button>
-            </div>
+            {disableForm ? (
+              <fieldset disabled>{formControls}</fieldset>
+            ) : (
+              formControls
+            )}
           </form>
         </div>
       </div>
