@@ -141,9 +141,7 @@ export async function googleLogin(googleAccessToken) {
     });
 
     let { token } = response.data;
-    let { access_token } = googleAccessToken;
 
-    localStorage.setItem("googleAccessToken", access_token);
     localStorage.setItem("token", token);
 
     return true;
