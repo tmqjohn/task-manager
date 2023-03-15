@@ -40,6 +40,7 @@ const Group = () => {
   const groupTitleEditInput = useRef();
   const closeEditBtn = useRef();
   const closeNewBtn = useRef();
+  const chatBtnRef = useRef();
 
   useEffect(() => {
     setGroups(selectedProject[0]?.groupDetails);
@@ -171,10 +172,11 @@ const Group = () => {
             className="btn btn-primary border border-0 p-1 me-3"
             data-bs-toggle="offcanvas"
             data-bs-target="#chatSystem"
+            ref={chatBtnRef}
           >
             <img src="/chat_big.svg" /> Chat
           </button>
-          <Chat />
+          <Chat chatBtnRef={chatBtnRef} />
         </div>
 
         <section className="project-group-list flex-fill">
