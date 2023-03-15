@@ -1,23 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
+import useDrivePicker from "react-google-drive-picker";
 
 import {
   useProjectStore,
   useUserStore,
   useChatStore,
+  useGoogleStore,
 } from "../../../store/store";
 
 import { updateNewChat } from "../../api/chat";
 
 import { sendMessage, receiveMessage } from "../../../helpers/socket";
 
-const Chat = () => {
+const Chat = ({ chatBtnRef }) => {
+  const [openPicker, authResponse] = useDrivePicker();
+
   const { selectedProject, setProjects } = useProjectStore((state) => ({
     selectedProject: state.selectedProject,
     setProjects: state.setProjects,
   }));
   const userDetails = useUserStore((state) => state.userDetails);
   const socket = useChatStore((state) => state.socket);
+  const accessToken = useGoogleStore((state) => state.accessToken);
 
   const [chatHistory, setChatHistory] = useState([]);
 
@@ -36,8 +41,11 @@ const Chat = () => {
 
   async function handleSendMessage() {
     const newChat = {
+      message: {
+        text: chatRef.current.value,
+      },
+      messageType: "chat",
       name: userDetails.fullName,
-      message: chatRef.current.value,
     };
     const chatId = selectedProject[0].chatHistory;
 
@@ -65,6 +73,55 @@ const Chat = () => {
     });
   }, [socket]);
 
+  function handleOpenPicker() {
+    chatBtnRef.current.click();
+
+    openPicker({
+      clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      developerKey: import.meta.env.VITE_GOOGLE_API_KEY,
+      viewId: "DOCS",
+      token: accessToken.access_token,
+      showUploadView: true,
+      showUploadFolders: true,
+      supportDrives: true,
+      customScopes: ["https://www.googleapis.com/auth/drive"],
+      callbackFunction: (data) => {
+        handleAttachFile(data);
+      },
+    });
+  }
+
+  async function handleAttachFile(data) {
+    if (data.docs) {
+      const newChat = {
+        message: {
+          text: data.docs[0].name,
+          url: data.docs[0].url,
+        },
+        messageType: "link",
+        name: userDetails.fullName,
+      };
+      const chatId = selectedProject[0].chatHistory;
+
+      const isSuccess = await updateNewChat(newChat, chatId);
+
+      if (isSuccess) {
+        sendMessage({ ...newChat, room: projectId }, socket);
+
+        await setChatHistory((prev) => [
+          ...prev,
+          { ...newChat, room: projectId },
+        ]);
+
+        setProjects();
+
+        chatBtnRef.current.click();
+      }
+    }
+
+    if (data.action === "cancel") chatBtnRef.current.click();
+  }
+
   return (
     <>
       <div className="offcanvas offcanvas-end" id="chatSystem">
@@ -85,14 +142,26 @@ const Chat = () => {
                     className="me-chat-message text-bg-primary border rounded-5 p-2 m-1"
                     key={i}
                   >
-                    {chat.message}
+                    {chat.messageType === "chat" ? (
+                      chat.message.text
+                    ) : (
+                      <a className="text-white" href={chat.message.url}>
+                        {chat.message.text}
+                      </a>
+                    )}
                   </div>
                 </div>
               ) : (
                 <div className="other-chat-container d-flex flex-shrink-0 flex-column m-1">
                   <div className="other-chat-name text-muted">{chat.name}</div>
                   <div className="other-chat text-bg-secondary border rounded-5 p-2 align-self-baseline">
-                    {chat.message}
+                    {chat.messageType === "chat" ? (
+                      chat.message.text
+                    ) : (
+                      <a className="text-white" href={chat.message.url}>
+                        {chat.message.text}
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
@@ -101,7 +170,7 @@ const Chat = () => {
           <div className="scroll-end-placeholder" ref={chatScrollEndRef} />
         </section>
         <section className="offcanvas-footer d-flex border border-top p-3">
-          <div className="input-send-divider w-100 h-100 me-2">
+          <div className="input-send-divider w-100 d-flex flex-column me-2">
             <form
               autoComplete="off"
               onSubmit={(e) => {
@@ -112,16 +181,19 @@ const Chat = () => {
               <input
                 className="chat-input form-control"
                 ref={chatRef}
-                onSubmit={() => handleSendMessage()}
+                onSubmit={handleSendMessage}
                 required
               />
             </form>
-            <button className="btn border border-0 p-0 pe-1 mt-1">
+            <button
+              className="btn align-self-baseline border border-0 p-0 pe-1 mt-1"
+              onClick={handleOpenPicker}
+            >
               <img
                 width="20"
                 src="https://img.icons8.com/color/48/null/google-drive--v2.png"
               />{" "}
-              Google Drive
+              Attach Files
             </button>
           </div>
           <div className="send-button">
