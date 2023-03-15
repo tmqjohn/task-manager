@@ -1,3 +1,13 @@
+/** TABLE OF CONTENTS **/
+/*
+C1 - Main Layout
+C2 - Login
+C3 - Register
+C4 - Password Reset
+C5 - Google Login
+C6 - Project
+*/
+
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Roboto&display=swap");
 
 html {
@@ -11,8 +21,8 @@ html {
 }
 
 body {
-  /* font-family: "Montserrat", sans-serif; */
-  /* font-family: "Roboto", sans-serif; */
+  font-family: "Montserrat", sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 h1,
@@ -27,4 +37,115 @@ p {
 
 textarea {
   resize: none;
+}
+
+/* C1 ***** Main Layout *****/
+.side-panel {
+  max-width: 15rem;
+}
+
+/* C2 ***** Login Layout *****/
+.login-form {
+  height: 500px;
+  width: 800px;
+}
+
+.login-left-panel {
+  background-color: rgba(36, 173, 243);
+  height: 100%;
+  width: 50%;
+}
+
+.login-right-panel {
+  height: 100%;
+  width: 50%;
+}
+
+.form-floating input[type="email"] {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.form-login-button {
+  background-color: rgb(36, 173, 243);
+}
+
+.btn-primary {
+  --bs-btn-bg: rgba(36, 173, 243) !important;
+  --bs-btn-border-color: rgba(36, 173, 243) !important;
+  --bs-btn-hover-bg: rgba(36, 173, 243, 70%) !important;
+  --bs-btn-hover-border-color: rgba(36, 173, 243, 70%) !important;
+  --bs-btn-focus-shadow-rgb: rgba(36, 173, 243) !important;
+  --bs-btn-active-bg: rgba(36, 173, 243, 70%) !important;
+  --bs-btn-active-border-color: rgba(36, 173, 243, 20%) !important;
+}
+
+.form-floating.login input[type="text"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-floating.login input[type="password"] {
+  margin-bottom: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* C3 ***** Register *****/
+.form-floating.register input[type="text"] {
+  margin-bottom: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-floating.register input[type="password"] {
+  margin-bottom: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-floating.full-name input[type="text"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* C4 ***** Password Reset *****/
+.new-password {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.confirm-password {
+  margin-bottom: -1px;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+/* C5 ***** Google Login *****/
+.google {
+  left: 50%;
+}
+
+/* C6 ***** Project Layout *****/
+.target-hover:hover .show-controls {
+  display: inline-block !important;
+}
+
+.show-controls {
+  display: none !important;
+}
+
+.offcanvas.offcanvas-end {
+  width: 35% !important;
+}
+
+.offcanvas-footer {
+  height: 120px;
 }
