@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { logoutUser } from "../../api/user";
-import { useUserStore } from "../../../store/store";
+import { useUserStore, useGoogleStore } from "../../../store/store";
 
 import Profile from "../../routes/root/Profile";
 
 const Navbar = () => {
   const clearUserDetails = useUserStore((state) => state.clearUserDetails);
+  const clearAccessToken = useGoogleStore((state) => state.clearAccessToken);
 
   const [defaultProfileInputs, setDefaultProfileInputs] = useState(false);
 
@@ -16,6 +17,7 @@ const Navbar = () => {
   function logout() {
     logoutUser();
     clearUserDetails();
+    clearAccessToken();
     navigate("/auth/login");
   }
 

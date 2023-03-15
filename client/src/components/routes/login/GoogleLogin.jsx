@@ -4,11 +4,17 @@ import { useGoogleLogin } from "@react-oauth/google";
 
 import { googleRegister, googleLogin } from "../../api/user";
 
+import { useGoogleStore } from "../../../store/store";
+
 const GoogleLogin = ({ method }) => {
+  const setAccessToken = useGoogleStore((state) => state.setAccessToken);
+
   const navigate = useNavigate();
 
   const handleGoogleAccess = useGoogleLogin({
     onSuccess: async (googleAccessToken) => {
+      setAccessToken(googleAccessToken);
+
       if (method === "sign-up") {
         const { googleRegisterToken } = await googleRegister(googleAccessToken);
 
