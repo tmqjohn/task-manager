@@ -7,8 +7,6 @@ import { loginUser } from "../../api/user";
 //components
 import GoogleLogin from "./GoogleLogin";
 
-import "./styles/login.css";
-
 const LoginPage = () => {
   const inputUser = useRef();
   const inputPass = useRef();

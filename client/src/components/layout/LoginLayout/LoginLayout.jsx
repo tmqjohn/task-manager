@@ -1,8 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-import "../styles/loginlayout.css";
-
 const Login = () => {
   return (
     <div className="position-absolute shadow rounded top-50 start-50 translate-middle">

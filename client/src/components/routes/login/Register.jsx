@@ -8,8 +8,6 @@ import { registerUser } from "../../api/user";
 //components
 import GoogleLogin from "./GoogleLogin";
 
-import "./styles/login.css";
-
 const Register = () => {
   const inputUser = useRef();
   const inputPass = useRef();

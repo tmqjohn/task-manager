@@ -11,8 +11,6 @@ import { updateNewChat } from "../../api/chat";
 
 import { sendMessage, receiveMessage } from "../../../helpers/socket";
 
-import "./styles/project.css";
-
 const Chat = () => {
   const { selectedProject, setProjects } = useProjectStore((state) => ({
     selectedProject: state.selectedProject,

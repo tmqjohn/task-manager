@@ -4,8 +4,6 @@ import { Outlet } from "react-router-dom";
 import SidePanel from "./SidePanel";
 import Navbar from "./Navbar";
 
-import "../styles/mainlayout.css";
-
 const MainLayout = () => {
   return (
     <main className="main-app container-fluid d-flex flex-column min-vh-100">

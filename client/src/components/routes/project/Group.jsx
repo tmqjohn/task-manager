@@ -17,8 +17,6 @@ import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
 import GroupsModal from "../../layout/ModalLayout/GroupsModal";
 import TasksModal from "../../layout/ModalLayout/TasksModal";
 
-import "./styles/project.css";
-
 const Group = () => {
   const userDetails = useUserStore((state) => state.userDetails);
   const { selectedProject, setProjects } = useProjectStore((state) => ({
