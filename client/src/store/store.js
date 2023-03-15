@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 import { getUserDetails, getUserId } from "../components/api/user";
 import { getUserProjects } from "../components/api/projects";
@@ -39,3 +40,18 @@ export const useGroupStore = create((set, get) => ({
 export const useChatStore = create((set, get) => ({
   socket: io.connect(import.meta.env.VITE_SERVER_URL),
 }));
+
+export const useGoogleStore = create(
+  persist(
+    (set, get) => ({
+      accessToken: {},
+      setAccessToken: (googleAccessToken) =>
+        set({ accessToken: googleAccessToken }),
+      clearAccessToken: () => set({ accessToken: {} }),
+    }),
+    {
+      name: "access-token",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
