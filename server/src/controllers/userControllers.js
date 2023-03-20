@@ -31,11 +31,15 @@ const getUser = asyncHandler(async (req, res) => {
   if (username === "")
     return res.status(404).json({ message: "Invalid username" });
 
-  const foundUser = await User.findOne({
+  let foundUser = await User.findOne({
     $or: [{ username }, { email: username }],
   })
     .lean()
     .exec();
+
+  if (!foundUser) {
+    foundUser = await User.findById(username).lean().exec();
+  }
 
   if (!foundUser) {
     return res.status(404).json({ message: "User not found" });
