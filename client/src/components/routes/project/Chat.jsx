@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import useDrivePicker from "react-google-drive-picker";
+// import useDrivePicker from "react-google-drive-picker";
 
 import {
   useProjectStore,
@@ -10,11 +10,13 @@ import {
 } from "../../../store/store";
 
 import { updateNewChat } from "../../api/chat";
+import { gapiDriveLoad, gapiPickerLoad } from "../../api/google";
+import { getUserDetails } from "../../api/user";
 
 import { sendMessage, receiveMessage } from "../../../helpers/socket";
 
 const Chat = ({ chatBtnRef }) => {
-  const [openPicker, authResponse] = useDrivePicker();
+  // const [openPicker, authResponse] = useDrivePicker();
 
   const { selectedProject, setProjects } = useProjectStore((state) => ({
     selectedProject: state.selectedProject,
@@ -22,7 +24,10 @@ const Chat = ({ chatBtnRef }) => {
   }));
   const userDetails = useUserStore((state) => state.userDetails);
   const socket = useChatStore((state) => state.socket);
-  const accessToken = useGoogleStore((state) => state.accessToken);
+  const { accessToken, setAccessToken } = useGoogleStore((state) => ({
+    accessToken: state.accessToken,
+    setAccessToken: state.setAccessToken,
+  }));
 
   const [chatHistory, setChatHistory] = useState([]);
 
@@ -30,6 +35,11 @@ const Chat = ({ chatBtnRef }) => {
   const chatScrollEndRef = useRef();
 
   let { projectId } = useParams();
+
+  useEffect(() => {
+    gapiPickerLoad();
+    gapiDriveLoad();
+  }, []);
 
   useEffect(() => {
     setChatHistory(selectedProject[0]?.chatHistoryDetails.chatHistory);
@@ -73,35 +83,88 @@ const Chat = ({ chatBtnRef }) => {
     });
   }, [socket]);
 
-  function handleOpenPicker() {
+  async function handleOpenPicker() {
     chatBtnRef.current.click();
 
-    openPicker({
-      clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      developerKey: import.meta.env.VITE_GOOGLE_API_KEY,
-      viewId: "DOCS",
-      token: accessToken.access_token,
-      showUploadView: true,
-      showUploadFolders: true,
-      supportDrives: true,
-      customScopes: ["https://www.googleapis.com/auth/drive"],
-      callbackFunction: (data) => {
-        handleAttachFile(data);
-      },
-    });
+    const showPicker = (token) => {
+      const view = new google.picker.View(google.picker.ViewId.DOCS);
+      const uploadView = new google.picker.DocsUploadView();
+
+      const picker = new google.picker.PickerBuilder()
+        .addView(view)
+        .addView(uploadView)
+        .enableFeature(google.picker.Feature.MINE_ONLY)
+        .setOAuthToken(token)
+        .setDeveloperKey(import.meta.env.VITE_GOOGLE_API_KEY)
+        .setCallback(async (data) => {
+          await handleAttachFile(data);
+        })
+        .build();
+
+      picker.setVisible(true);
+    };
+
+    if (Object.keys(accessToken).length === 0) {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        scope: "https://www.googleapis.com/auth/drive",
+        callback: (tokenResponse) => {
+          setAccessToken(tokenResponse);
+
+          showPicker(tokenResponse.access_token);
+        },
+      });
+
+      client.requestAccessToken({ prompt: "consent" });
+    }
+
+    if (Object.keys(accessToken).length > 0) {
+      showPicker(accessToken.access_token);
+    }
   }
 
   async function handleAttachFile(data) {
     if (data.docs) {
+      const selectedFile = data.docs[0];
+
       const newChat = {
         message: {
-          text: data.docs[0].name,
-          url: data.docs[0].url,
+          text: selectedFile.name,
+          url: selectedFile.url,
         },
         messageType: "link",
         name: userDetails.fullName,
       };
       const chatId = selectedProject[0].chatHistory;
+      const emailAddress = await getUserDetails(selectedProject[0].owner[0]);
+
+      chatBtnRef.current.click();
+
+      try {
+        const { result } = await window.gapi.client.drive.permissions.create({
+          fileId: selectedFile.id,
+          supportsAllDrives: true,
+          fields: "*",
+          resource: {
+            role: "writer",
+            type: "user",
+            emailAddress: emailAddress.email,
+          },
+        });
+
+        const response = await window.gapi.client.drive.permissions.update({
+          fileId: selectedFile.id,
+          permissionId: result.id,
+          resource: {
+            pendingOwner: true,
+            role: "writer",
+          },
+        });
+
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
 
       const isSuccess = await updateNewChat(newChat, chatId);
 
@@ -114,8 +177,6 @@ const Chat = ({ chatBtnRef }) => {
         ]);
 
         setProjects();
-
-        chatBtnRef.current.click();
       }
     }
 
