@@ -34,6 +34,10 @@ app.use("/", routes);
 io.on("connection", (socket) => {
   console.log(`new connection: ${socket.id}`);
 
+  socket.on("project-change", () => {
+    socket.broadcast.emit("project-update");
+  });
+
   socket.on("join-room", (data) => {
     if (socket.rooms.has(data.prevProjectId)) {
       socket.leave(data.prevProjectId);
