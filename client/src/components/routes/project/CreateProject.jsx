@@ -7,12 +7,16 @@ import { getUserDetails } from "../../api/user";
 
 import { useProjectStore } from "../../../store/store";
 import { useUserStore } from "../../../store/store";
+import { useChatStore } from "../../../store/store";
+
+import { projectChanges } from "../../../helpers/socket";
 
 import ProjectModal from "../../layout/ModalLayout/ProjectModal";
 
 const CreateProject = ({ clearInputs }) => {
   const setProjects = useProjectStore((state) => state.setProjects);
   const userDetails = useUserStore((state) => state.userDetails);
+  const socket = useChatStore((state) => state.socket);
 
   const [members, setMembers] = useState([]);
   const [membersId, setMembersId] = useState([]);
@@ -56,6 +60,7 @@ const CreateProject = ({ clearInputs }) => {
 
     if (newProject) {
       setProjects();
+      projectChanges(socket);
       navigate(`/project/${newProject._id}`);
 
       closeBtnRef.current.click();
