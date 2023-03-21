@@ -2,10 +2,16 @@ import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { useUserStore, useProjectStore } from "../../../store/store";
+import {
+  useUserStore,
+  useProjectStore,
+  useChatStore,
+} from "../../../store/store";
 
 import { getUserDetails } from "../../api/user";
 import { updateProject, deleteProject } from "../../api/projects";
+
+import { projectChanges } from "../../../helpers/socket";
 
 import ProjectModal from "../../layout/ModalLayout/ProjectModal";
 import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
@@ -16,6 +22,7 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
     selectedProject: state.selectedProject,
     setProjects: state.setProjects,
   }));
+  const socket = useChatStore((state) => state.socket);
 
   const [owners, setOwners] = useState([]);
   const [ownersId, setOwnersId] = useState([]);
@@ -187,6 +194,7 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
 
     if (updatedProjects) {
       setProjects();
+      projectChanges(socket);
 
       closeBtnRef.current.click();
       toast.dismiss();
@@ -211,6 +219,7 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
 
     if (updatedProjects) {
       setProjects();
+      projectChanges(socket);
       navigate("/");
 
       toast.dismiss();

@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-import { useUserStore, useProjectStore } from "../../../store/store";
+import {
+  useUserStore,
+  useProjectStore,
+  useChatStore,
+} from "../../../store/store";
 
 import { updateTask } from "../../api/task";
+
+import { updateProject } from "../../api/projects";
 
 const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
   const userDetails = useUserStore((state) => state.userDetails);
@@ -10,8 +16,15 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
     selectedProject: state.selectedProject,
     setProjects: state.setProjects,
   }));
+  const socket = useChatStore((state) => state.socket);
 
   const statusText = ["Pending", "Ongoing", "Done"];
+
+  useEffect(() => {
+    updateProject(socket, () => {
+      setProjects();
+    });
+  }, [socket]);
 
   async function updateStatus(statusText, taskId) {
     await updateTask(statusText, taskId);

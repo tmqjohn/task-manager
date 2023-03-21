@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import {
   useProjectStore,
@@ -9,24 +9,27 @@ import {
 
 import { joinProjectChat } from "../../../helpers/socket";
 
+import { updateProject } from "../../../helpers/socket";
+
 import ManageProject from "./ManageProject";
 import Group from "./Group";
 
 const Projects = () => {
   const userDetails = useUserStore((state) => state.userDetails);
-  const { projects, selectedProject, setSelectedProject } = useProjectStore(
-    (state) => ({
+  const { projects, setProjects, selectedProject, setSelectedProject } =
+    useProjectStore((state) => ({
       projects: state.projects,
+      setProjects: state.setProjects,
       selectedProject: state.selectedProject,
       setSelectedProject: state.setSelectedProject,
-    })
-  );
+    }));
   const socket = useChatStore((state) => state.socket);
 
   const [projectDefaults, setProjectsDefaults] = useState(false);
   const [prevProjectId, setPrevProjectId] = useState("");
 
   let { projectId } = useParams();
+  let navigate = useNavigate();
   let manageBtn;
 
   useEffect(() => {
@@ -36,6 +39,16 @@ const Projects = () => {
 
     setSelectedProject(projectId);
   }, [projectId, projects]);
+
+  useEffect(() => {
+    updateProject(socket, () => {
+      setProjects();
+
+      if (selectedProject.length === 0) {
+        navigate("/");
+      }
+    });
+  }, [socket]);
 
   function handleDefaultInput() {
     setProjectsDefaults((prev) => !prev);
