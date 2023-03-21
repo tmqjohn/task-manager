@@ -1,11 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
-import { useProjectStore, useUserStore } from "../../../store/store";
+import {
+  useProjectStore,
+  useUserStore,
+  useChatStore,
+} from "../../../store/store";
+
+import { updateProject } from "../../../helpers/socket";
 
 const Main = () => {
-  const projects = useProjectStore((state) => state.projects);
+  const { projects, setProjects } = useProjectStore((state) => ({
+    projects: state.projects,
+    setProjects: state.setProjects,
+  }));
   const userDetails = useUserStore((state) => state.userDetails);
+  const socket = useChatStore((state) => state.socket);
+
+  useEffect(() => {
+    updateProject(socket, () => {
+      setProjects();
+    });
+  }, [socket]);
 
   const projectsOwned = projects?.map((project, i) => {
     if (project.owner.includes(userDetails._id))
