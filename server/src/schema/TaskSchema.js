@@ -18,6 +18,12 @@ const TaskSchema = new mongoose.Schema(
     note: {
       type: String,
     },
+    assignee: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,

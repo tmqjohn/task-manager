@@ -1,18 +1,33 @@
 const asyncHandler = require("express-async-handler");
 const Task = require("../schema/TaskSchema");
+const User = require("../schema/UserSchema");
 
 /**@ GET request
  * gets all tasks
  * /api/task
  */
 const getAllTasks = asyncHandler(async (req, res) => {
-  const foundTasks = await Task.find().lean();
+  const tasks = await Task.find().lean();
 
-  if (foundTasks) {
-    res.status(200).json(foundTasks);
-  } else {
-    res.status(500).json({ message: "No Tasks Found" });
-  }
+  const tasksDetails = await Promise.all(
+    tasks.map(async (task) => {
+      const assigneeList = await Promise.all(
+        task.assignee.map(
+          async (assignee) =>
+            await User.findById(assignee).select("fullName").exec()
+        )
+      );
+
+      const assigneeName = assigneeList.map((assignee) => assignee.fullName);
+
+      return {
+        ...task,
+        assigneeName,
+      };
+    })
+  );
+
+  return res.status(200).json(tasksDetails);
 });
 
 /**@ POST request
@@ -20,12 +35,13 @@ const getAllTasks = asyncHandler(async (req, res) => {
  * /api/task
  */
 const addNewTask = asyncHandler(async (req, res) => {
-  const { title, dueDate, note } = req.body;
+  const { title, dueDate, note, assignee } = req.body;
 
   const newTask = await Task.create({
     title,
     dueDate,
     note,
+    assignee,
   });
 
   if (newTask) {
@@ -40,7 +56,7 @@ const addNewTask = asyncHandler(async (req, res) => {
  * /api/task/:taskId
  */
 const updateTask = asyncHandler(async (req, res) => {
-  const { title, dueDate, status, note } = req.body;
+  const { title, dueDate, status, note, assignee } = req.body;
   const { taskId } = req.params;
 
   const foundTask = await Task.findById(taskId).exec();
@@ -51,12 +67,22 @@ const updateTask = asyncHandler(async (req, res) => {
     foundTask.title = title;
     foundTask.dueDate = dueDate;
     foundTask.note = note;
+    foundTask.assignee = assignee;
   }
 
   const result = await foundTask.save();
 
+  const assigneeList = await Promise.all(
+    result.assignee.map(
+      async (assignee) =>
+        await User.findById(assignee).select("fullName").exec()
+    )
+  );
+
+  const assigneeName = assigneeList.map((assignee) => assignee.fullName);
+
   if (result === foundTask) {
-    res.status(200).json(foundTask);
+    res.status(200).json({ ...result.toObject(), assigneeName });
   } else {
     res.status(500).json({ message: "There was an error updating task" });
   }
