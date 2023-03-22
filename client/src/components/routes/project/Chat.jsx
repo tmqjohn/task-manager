@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-// import useDrivePicker from "react-google-drive-picker";
 
 import {
   useProjectStore,
@@ -16,8 +15,6 @@ import { getUserDetails } from "../../api/user";
 import { sendMessage, receiveMessage } from "../../../helpers/socket";
 
 const Chat = ({ chatBtnRef }) => {
-  // const [openPicker, authResponse] = useDrivePicker();
-
   const { selectedProject, setProjects } = useProjectStore((state) => ({
     selectedProject: state.selectedProject,
     setProjects: state.setProjects,
