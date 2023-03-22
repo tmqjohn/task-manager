@@ -8,7 +8,7 @@ import {
 
 import { updateTask } from "../../api/task";
 
-import { updateProject } from "../../api/projects";
+import { projectChanges, updateProject } from "../../../helpers/socket";
 
 const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
   const userDetails = useUserStore((state) => state.userDetails);
@@ -30,6 +30,7 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
     await updateTask(statusText, taskId);
 
     setProjects();
+    projectChanges(socket);
   }
 
   function taskColor(taskStatus) {
