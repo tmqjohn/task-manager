@@ -5,9 +5,14 @@ import { useGroupStore } from "../../../store/store";
 const TasksModal = ({
   id,
   title,
+  assigneeList,
+  setAssigneeList,
+  setAssigneeIdList,
   inputId,
   handleAddTask,
   handleEditTask,
+  handleAddAssignee,
+  handleRemoveAssignee,
   submitBtnLabel,
   groupId,
   taskId,
@@ -19,6 +24,7 @@ const TasksModal = ({
   const taskTitleInput = useRef();
   const dueInput = useRef();
   const noteInput = useRef();
+  const assigneeInput = useRef();
 
   const closeBtnRef = useRef();
 
@@ -27,6 +33,9 @@ const TasksModal = ({
       taskTitleInput.current.value = "";
       dueInput.current.valueAsNumber = Date.now();
       noteInput.current.value = "";
+      assigneeInput.current.value = "";
+      setAssigneeList([]);
+      setAssigneeIdList([]);
     } else {
       let getTaskDetails = groups
         ?.filter((group) => groupId === group._id)[0]
@@ -35,8 +44,27 @@ const TasksModal = ({
       taskTitleInput.current.value = getTaskDetails?.title;
       dueInput.current.value = getTaskDetails?.dueDate;
       noteInput.current.value = getTaskDetails?.note;
+      assigneeInput.current.value = "";
+      setAssigneeList(
+        getTaskDetails?.assigneeName ? getTaskDetails.assigneeName : []
+      );
+      setAssigneeIdList(
+        getTaskDetails?.assignee ? getTaskDetails.assignee : []
+      );
     }
   }, [taskInputDefaults]);
+
+  const assignees = assigneeList?.map((assignee, i) => (
+    <li className="list-group-item" key={i}>
+      <button
+        className="btn p-0"
+        onClick={(e) => handleRemoveAssignee(e.target.offsetParent.innerText)}
+      >
+        <img src="/remove.svg" />
+      </button>
+      {assignee}
+    </li>
+  ));
 
   return (
     <div
@@ -56,6 +84,7 @@ const TasksModal = ({
               data-bs-dismiss="modal"
             ></button>
           </div>
+
           <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
             <div className="modal-body">
               <section className="mb-3">
@@ -69,6 +98,7 @@ const TasksModal = ({
                   ref={taskTitleInput}
                 />
               </section>
+
               <section className="mb-3">
                 <label htmlFor={inputId.dueDate} className="col-form-label">
                   Due Date:
@@ -80,6 +110,7 @@ const TasksModal = ({
                   ref={dueInput}
                 />
               </section>
+
               <section className="mb-3">
                 <label htmlFor={inputId.note} className="col-form-label">
                   Note:
@@ -91,7 +122,33 @@ const TasksModal = ({
                   ref={noteInput}
                 />
               </section>
+
+              <section>
+                <label htmlFor={inputId.assignee} className="col-form-label">
+                  Assignee/s:
+                </label>
+                <div className="d-flex">
+                  <input
+                    type="text"
+                    className="form-control me-3"
+                    id={inputId.assignee}
+                    placeholder="Search by username or email"
+                    ref={assigneeInput}
+                  />
+                  <button
+                    className="btn ms-auto p-0"
+                    onClick={async () => await handleAddAssignee(assigneeInput)}
+                  >
+                    <img src="/add_big.svg" />
+                  </button>
+                </div>
+
+                <ul className="list-group list-group-flush mt-1 mb-0">
+                  {assignees}
+                </ul>
+              </section>
             </div>
+
             <div className="modal-footer">
               <button
                 type="button"

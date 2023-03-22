@@ -19,6 +19,7 @@ import Chat from "./Chat";
 import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
 import GroupsModal from "../../layout/ModalLayout/GroupsModal";
 import TasksModal from "../../layout/ModalLayout/TasksModal";
+import { getUserDetails } from "../../api/user";
 
 const Group = () => {
   const userDetails = useUserStore((state) => state.userDetails);
@@ -34,6 +35,8 @@ const Group = () => {
 
   const [groupId, setGroupId] = useState();
   const [taskId, setTaskId] = useState();
+  const [assigneeList, setAssigneeList] = useState([]);
+  const [assigneeIdList, setAssigneeIdList] = useState([]);
   const [groupTitle, setGroupTitle] = useState();
   const [taskTitle, setTaskTitle] = useState();
   const [taskInputDefaults, setTaskInputDefaults] = useState(false);
@@ -42,8 +45,8 @@ const Group = () => {
 
   const groupTitleNewInput = useRef();
   const groupTitleEditInput = useRef();
-  const closeEditBtn = useRef();
   const closeNewBtn = useRef();
+  const closeEditBtn = useRef();
   const chatBtnRef = useRef();
 
   useEffect(() => {
@@ -112,6 +115,7 @@ const Group = () => {
     }
   }
 
+  // ******** TASKS FUNCTIONS - coded here due to fetching mapped group ID  ******** //
   function handleShowTaskModal(groupId, taskId, status = false) {
     setGroupId(groupId);
     setTaskId(taskId);
@@ -122,7 +126,16 @@ const Group = () => {
   }
 
   async function handleAddTask(taskTitle, dueDate, noteInput, closeBtnRef) {
-    const isSuccess = await addNewTask(taskTitle, dueDate, noteInput, groupId);
+    const projectId = selectedProject[0]._id;
+
+    const isSuccess = await addNewTask(
+      taskTitle,
+      dueDate,
+      noteInput,
+      assigneeIdList,
+      groupId,
+      projectId
+    );
 
     if (isSuccess) {
       setProjects();
@@ -133,11 +146,15 @@ const Group = () => {
   }
 
   async function handleEditTask(taskTitle, dueDate, noteInput, closeBtnRef) {
+    const projectId = selectedProject[0]._id;
+
     const isSuccess = await updateTask(
       taskTitle,
       taskId,
+      projectId,
       dueDate,
       noteInput,
+      assigneeIdList,
       (status = false)
     );
 
@@ -165,6 +182,62 @@ const Group = () => {
       toast.dismiss();
       toast.success(isSuccess.message);
     }
+  }
+
+  async function handleAddAssignee(searchInput) {
+    let searchValue = searchInput.current.value;
+
+    if (searchValue) {
+      const foundUser = await getUserDetails(searchValue);
+
+      if (!foundUser.message) {
+        if (
+          searchValue === userDetails.username ||
+          searchValue === userDetails.email
+        ) {
+          searchInput.current.value = "";
+          searchInput.focus;
+
+          toast.dismiss();
+          return toast.error("Owner cannot be added as member");
+        }
+
+        if (
+          assigneeList.includes(foundUser.fullName) ||
+          assigneeList.includes(foundUser.email)
+        ) {
+          searchInput.current.value = "";
+          searchInput.focus;
+
+          toast.dismiss();
+          return toast.error("User is already added in the project");
+        }
+
+        searchInput.current.value = "";
+        searchInput.focus;
+
+        setAssigneeList([...assigneeList, foundUser.fullName]);
+        setAssigneeIdList([...assigneeIdList, foundUser._id]);
+      }
+    } else {
+      searchInput.focus;
+
+      toast.dismiss();
+      return toast.error(foundUser.message);
+    }
+  }
+
+  async function handleRemoveAssignee(assignee) {
+    const removeAssignee = assignee;
+    const removeAssigneeId =
+      assigneeIdList[assigneeList.indexOf(removeAssignee)];
+
+    setAssigneeList((prev) =>
+      prev.filter((assignee) => assignee != removeAssignee)
+    );
+    setAssigneeIdList((prev) =>
+      prev.filter((assigneeId) => assigneeId != removeAssigneeId)
+    );
   }
 
   return (
@@ -280,12 +353,18 @@ const Group = () => {
       <TasksModal
         id="showAddTaskPrompt"
         title="Add Task"
+        assigneeList={assigneeList}
+        setAssigneeList={setAssigneeList}
+        setAssigneeIdList={setAssigneeIdList}
         inputId={{
           taskTitle: "new-task-title",
           dueDate: "new-due-date",
           note: "new-note",
+          assignee: "new-assignee",
         }}
         handleAddTask={handleAddTask}
+        handleAddAssignee={handleAddAssignee}
+        handleRemoveAssignee={handleRemoveAssignee}
         submitBtnLabel="Add"
         taskInputDefaults={taskInputDefaults}
         newTask={true}
@@ -294,12 +373,18 @@ const Group = () => {
       <TasksModal
         id="showEditTaskPrompt"
         title="Edit Task"
+        assigneeList={assigneeList}
+        setAssigneeList={setAssigneeList}
+        setAssigneeIdList={setAssigneeIdList}
         inputId={{
           taskTitle: "edit-task-title",
           dueDate: "edit-due-date",
           note: "edit-note",
+          assignee: "edit-assignee",
         }}
         handleEditTask={handleEditTask}
+        handleAddAssignee={handleAddAssignee}
+        handleRemoveAssignee={handleRemoveAssignee}
         submitBtnLabel="Update"
         groupId={groupId}
         taskId={taskId}
