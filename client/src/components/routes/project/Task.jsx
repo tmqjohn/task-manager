@@ -65,12 +65,12 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
         <tbody>
           {group.taskDetails.map((task) => (
             <tr
-              className={`target-hover table-${taskColor(task.status)}`}
-              key={task._id}
+              className={`target-hover table-${taskColor(task?.status)}`}
+              key={task?._id}
             >
               <td>
                 <div className="task-title-container d-flex">
-                  {task.title}
+                  {task?.title}
 
                   <div className="ms-auto d-flex">
                     {selectedProject[0]?.owner.includes(userDetails._id) ? (
@@ -105,11 +105,11 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
                 </div>
               </td>
 
-              <td>{task.dueDate}</td>
+              <td>{task?.dueDate}</td>
 
               <td>
                 <div className="task-status-container d-flex">
-                  {task.status}
+                  {task?.status}
 
                   <button
                     className="show-controls btn border border-0 p-0 mx-1"
@@ -124,7 +124,7 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
 
                   <ul className="p-0 dropdown-menu">
                     {statusText
-                      .filter((status) => status != task.status)
+                      .filter((status) => status != task?.status)
                       .map((taskStatus, i) => (
                         <li key={i}>
                           <button
@@ -143,7 +143,7 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
                 </div>
               </td>
 
-              <td>{task.note}</td>
+              <td>{task?.note}</td>
             </tr>
           ))}
         </tbody>
