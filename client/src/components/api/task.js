@@ -7,17 +7,29 @@ axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL;
  * @POST request
  * http://serverurl/api/task
  */
-export async function addNewTask(title, dueDate, note, groupId) {
+export async function addNewTask(
+  title,
+  dueDate,
+  note,
+  assignee,
+  groupId,
+  projectId
+) {
   try {
     const tasks = await axios.post("/api/task", {
       title,
       dueDate,
       note,
+      assignee,
     });
 
     await axios.patch("api/group/tasks/add", {
       tasks: tasks.data,
       groupId,
+    });
+
+    await axios.patch(`api/project/${projectId}`, {
+      members: assignee,
     });
 
     return true;
@@ -31,7 +43,15 @@ export async function addNewTask(title, dueDate, note, groupId) {
  * @PATCH request
  * http://serverurl/api/task/:taskId
  */
-export async function updateTask(title, taskId, dueDate, note, status = true) {
+export async function updateTask(
+  title,
+  taskId,
+  projectId,
+  dueDate,
+  note,
+  assignee,
+  status = true
+) {
   try {
     if (status) {
       let statusText = title;
@@ -44,6 +64,11 @@ export async function updateTask(title, taskId, dueDate, note, status = true) {
         title,
         dueDate,
         note,
+        assignee,
+      });
+
+      await axios.patch(`api/project/${projectId}`, {
+        members: assignee,
       });
     }
 
