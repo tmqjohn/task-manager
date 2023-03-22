@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import {
   useProjectStore,
@@ -29,7 +29,6 @@ const Projects = () => {
   const [prevProjectId, setPrevProjectId] = useState("");
 
   let { projectId } = useParams();
-  let navigate = useNavigate();
   let manageBtn;
 
   useEffect(() => {
@@ -43,10 +42,6 @@ const Projects = () => {
   useEffect(() => {
     updateProject(socket, () => {
       setProjects();
-
-      if (selectedProject.length === 0) {
-        navigate("/");
-      }
     });
   }, [socket]);
 
