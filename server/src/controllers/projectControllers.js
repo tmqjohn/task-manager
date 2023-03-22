@@ -39,8 +39,30 @@ const getAllProjects = asynchHandler(async (req, res) => {
 
       const groupDetails = await Promise.all(
         groups.map(async (group) => {
+          const tasks = await Promise.all(
+            group.tasks.map(
+              async (task) => await Task.findById(task).lean().exec()
+            )
+          );
+
           const taskDetails = await Promise.all(
-            group.tasks.map(async (task) => await Task.findById(task).exec())
+            tasks.map(async (task) => {
+              const assigneeList = await Promise.all(
+                task.assignee.map(
+                  async (assignee) =>
+                    await User.findById(assignee).select("fullName").exec()
+                )
+              );
+
+              const assigneeName = assigneeList.map(
+                (assignee) => assignee.fullName
+              );
+
+              return {
+                ...task,
+                assigneeName,
+              };
+            })
           );
 
           return { ...group, taskDetails };
@@ -101,8 +123,30 @@ const getUserProjects = asynchHandler(async (req, res) => {
 
       const groupDetails = await Promise.all(
         groups.map(async (group) => {
+          const tasks = await Promise.all(
+            group.tasks.map(
+              async (task) => await Task.findById(task).lean().exec()
+            )
+          );
+
           const taskDetails = await Promise.all(
-            group.tasks.map(async (task) => await Task.findById(task).exec())
+            tasks.map(async (task) => {
+              const assigneeList = await Promise.all(
+                task.assignee.map(
+                  async (assignee) =>
+                    await User.findById(assignee).select("fullName").exec()
+                )
+              );
+
+              const assigneeName = assigneeList.map(
+                (assignee) => assignee.fullName
+              );
+
+              return {
+                ...task,
+                assigneeName,
+              };
+            })
           );
 
           return { ...group, taskDetails };
@@ -177,15 +221,17 @@ const addProject = asynchHandler(async (req, res) => {
  * /api/projects/:projectId
  */
 const updateProject = asynchHandler(async (req, res) => {
-  const { title, desc, owner, members } = req.body;
+  const { title, desc, members } = req.body;
   const { projectId } = req.params;
 
   const foundProject = await Project.findById(projectId);
 
-  foundProject.title = title;
-  foundProject.desc = desc;
-  foundProject.owner = owner;
-  foundProject.members = members;
+  if (!title) {
+    foundProject.members = members;
+  } else {
+    foundProject.title = title;
+    foundProject.desc = desc;
+  }
 
   const result = await foundProject.save();
 
@@ -209,8 +255,28 @@ const updateProject = asynchHandler(async (req, res) => {
 
   const groupDetails = await Promise.all(
     groups.map(async (group) => {
+      const tasks = await Promise.all(
+        group.tasks.map(async (task) => await Task.findById(task).lean().exec())
+      );
+
       const taskDetails = await Promise.all(
-        group.tasks.map(async (task) => await Task.findById(task).exec())
+        tasks.map(async (task) => {
+          const assigneeList = await Promise.all(
+            task.assignee.map(
+              async (assignee) =>
+                await User.findById(assignee).select("fullName").exec()
+            )
+          );
+
+          const assigneeName = assigneeList.map(
+            (assignee) => assignee.fullName
+          );
+
+          return {
+            ...task,
+            assigneeName,
+          };
+        })
       );
 
       return { ...group, taskDetails };
