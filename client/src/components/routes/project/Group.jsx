@@ -6,10 +6,13 @@ import {
   useProjectStore,
   useGroupStore,
   useUserStore,
+  useChatStore,
 } from "../../../store/store";
 
 import { addNewGroup, updateGroup, deleteGroup } from "../../api/group";
 import { addNewTask, updateTask, deleteTask } from "../../api/task";
+
+import { projectChanges, updateProject } from "../../../helpers/socket";
 
 import Task from "./Task";
 import Chat from "./Chat";
@@ -27,6 +30,7 @@ const Group = () => {
     groups: state.groups,
     setGroups: state.setGroups,
   }));
+  const socket = useChatStore((state) => state.socket);
 
   const [groupId, setGroupId] = useState();
   const [taskId, setTaskId] = useState();
@@ -46,6 +50,12 @@ const Group = () => {
     setGroups(selectedProject[0]?.groupDetails);
   }, [selectedProject]);
 
+  useEffect(() => {
+    updateProject(socket, () => {
+      setProjects();
+    });
+  }, [socket]);
+
   function handleShowGroupAdd() {
     groupTitleNewInput.current.value = "";
   }
@@ -58,6 +68,7 @@ const Group = () => {
 
     if (isSuccess) {
       setProjects();
+      projectChanges(socket);
 
       closeNewBtn.current.click();
     }
@@ -77,6 +88,7 @@ const Group = () => {
 
     if (isSuccess) {
       setProjects();
+      projectChanges(socket);
 
       closeEditBtn.current.click();
     }
@@ -93,6 +105,7 @@ const Group = () => {
 
     if (isSuccess) {
       setProjects();
+      projectChanges(socket);
 
       toast.dismiss();
       toast.success(isSuccess.message);
@@ -113,6 +126,7 @@ const Group = () => {
 
     if (isSuccess) {
       setProjects();
+      projectChanges(socket);
 
       closeBtnRef.current.click();
     }
@@ -129,6 +143,7 @@ const Group = () => {
 
     if (isSuccess) {
       setProjects();
+      projectChanges(socket);
 
       closeBtnRef.current.click();
     }
@@ -145,6 +160,7 @@ const Group = () => {
 
     if (isSuccess) {
       setProjects();
+      projectChanges(socket);
 
       toast.dismiss();
       toast.success(isSuccess.message);
