@@ -12,6 +12,7 @@ export async function addNewTask(
   dueDate,
   note,
   assignee,
+  members,
   groupId,
   projectId
 ) {
@@ -29,7 +30,7 @@ export async function addNewTask(
     });
 
     await axios.patch(`api/project/${projectId}`, {
-      members: assignee,
+      members,
     });
 
     return true;
@@ -50,6 +51,7 @@ export async function updateTask(
   dueDate,
   note,
   assignee,
+  members,
   status = true
 ) {
   try {
@@ -68,7 +70,7 @@ export async function updateTask(
       });
 
       await axios.patch(`api/project/${projectId}`, {
-        members: assignee,
+        members,
       });
     }
 
