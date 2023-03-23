@@ -45,6 +45,10 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
     }
   }
 
+  // console.log(
+  //   group.taskDetails.map((task) => task.assignee.includes(userDetails._id))
+  // );
+
   return (
     <>
       <table className="table table-bordered table-sm mb-3">
@@ -62,91 +66,190 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
             </th>
           </tr>
         </thead>
-        <tbody>
-          {group.taskDetails.map((task) => (
-            <tr
-              className={`target-hover table-${taskColor(task?.status)}`}
-              key={task?._id}
-            >
-              <td>
-                <div className="task-title-container d-flex">
-                  {task?.title}
 
-                  <div className="ms-auto d-flex">
-                    {selectedProject[0]?.owner.includes(userDetails._id) ? (
-                      <>
-                        <button
-                          className="show-controls btn border border-0 p-0 mx-1"
-                          data-bs-target="#showEditTaskPrompt"
-                          data-bs-toggle="modal"
-                          onClick={() =>
-                            handleShowTaskModal(group._id, task._id)
-                          }
-                        >
-                          <img src="/edit_small.svg" />
-                        </button>
-                        <button
-                          className="show-controls btn border border-0 p-0 mx-1"
-                          data-bs-target="#showRemoveTaskPrompt"
-                          data-bs-toggle="modal"
-                          onClick={() =>
-                            handleShowRemoveTask(
-                              group._id,
-                              task._id,
-                              task.title
-                            )
-                          }
-                        >
-                          <img src="/remove_small.svg" />
-                        </button>
-                      </>
-                    ) : null}
-                  </div>
-                </div>
-              </td>
+        {selectedProject[0]?.owner.includes(userDetails._id) ? (
+          <tbody>
+            {group.taskDetails.map((task) => (
+              <tr
+                className={`target-hover table-${taskColor(task?.status)}`}
+                key={task?._id}
+              >
+                <td>
+                  <div className="task-title-container d-flex">
+                    {task?.title}
 
-              <td>{task?.dueDate}</td>
-
-              <td>
-                <div className="task-status-container d-flex">
-                  {task?.status}
-
-                  <button
-                    className="show-controls btn border border-0 p-0 mx-1"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                    onClick={() =>
-                      handleShowTaskModal(group._id, task._id, (status = true))
-                    }
-                  >
-                    <img src="/more_small.svg" />
-                  </button>
-
-                  <ul className="p-0 dropdown-menu">
-                    {statusText
-                      .filter((status) => status != task?.status)
-                      .map((taskStatus, i) => (
-                        <li key={i}>
+                    <div className="ms-auto d-flex">
+                      {selectedProject[0]?.owner.includes(userDetails._id) ? (
+                        <>
                           <button
-                            className={`btn btn-${taskColor(
-                              taskStatus
-                            )} w-100 border border-0 rounded-0`}
-                            onClick={() => {
-                              updateStatus(taskStatus, task._id);
-                            }}
+                            className="show-controls btn border border-0 p-0 mx-1"
+                            data-bs-target="#showEditTaskPrompt"
+                            data-bs-toggle="modal"
+                            onClick={() =>
+                              handleShowTaskModal(group._id, task._id)
+                            }
                           >
-                            {taskStatus}
+                            <img src="/edit_small.svg" />
                           </button>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              </td>
+                          <button
+                            className="show-controls btn border border-0 p-0 mx-1"
+                            data-bs-target="#showRemoveTaskPrompt"
+                            data-bs-toggle="modal"
+                            onClick={() =>
+                              handleShowRemoveTask(
+                                group._id,
+                                task._id,
+                                task.title
+                              )
+                            }
+                          >
+                            <img src="/remove_small.svg" />
+                          </button>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                </td>
 
-              <td>{task?.note}</td>
-            </tr>
-          ))}
-        </tbody>
+                <td>{task?.dueDate}</td>
+
+                <td>
+                  <div className="task-status-container d-flex">
+                    {task?.status}
+
+                    <button
+                      className="show-controls btn border border-0 p-0 mx-1"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                      onClick={() =>
+                        handleShowTaskModal(
+                          group._id,
+                          task._id,
+                          (status = true)
+                        )
+                      }
+                    >
+                      <img src="/more_small.svg" />
+                    </button>
+
+                    <ul className="p-0 dropdown-menu">
+                      {statusText
+                        .filter((status) => status != task?.status)
+                        .map((taskStatus, i) => (
+                          <li key={i}>
+                            <button
+                              className={`btn btn-${taskColor(
+                                taskStatus
+                              )} w-100 border border-0 rounded-0`}
+                              onClick={() => {
+                                updateStatus(taskStatus, task._id);
+                              }}
+                            >
+                              {taskStatus}
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                </td>
+
+                <td>{task?.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        ) : (
+          <tbody>
+            {group.taskDetails.map((task) =>
+              task.assignee.includes(userDetails._id) ? (
+                <tr
+                  className={`target-hover table-${taskColor(task?.status)}`}
+                  key={task?._id}
+                >
+                  <td>
+                    <div className="task-title-container d-flex">
+                      {task?.title}
+
+                      <div className="ms-auto d-flex">
+                        {selectedProject[0]?.owner.includes(userDetails._id) ? (
+                          <>
+                            <button
+                              className="show-controls btn border border-0 p-0 mx-1"
+                              data-bs-target="#showEditTaskPrompt"
+                              data-bs-toggle="modal"
+                              onClick={() =>
+                                handleShowTaskModal(group._id, task._id)
+                              }
+                            >
+                              <img src="/edit_small.svg" />
+                            </button>
+                            <button
+                              className="show-controls btn border border-0 p-0 mx-1"
+                              data-bs-target="#showRemoveTaskPrompt"
+                              data-bs-toggle="modal"
+                              onClick={() =>
+                                handleShowRemoveTask(
+                                  group._id,
+                                  task._id,
+                                  task.title
+                                )
+                              }
+                            >
+                              <img src="/remove_small.svg" />
+                            </button>
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>{task?.dueDate}</td>
+
+                  <td>
+                    <div className="task-status-container d-flex">
+                      {task?.status}
+
+                      <button
+                        className="show-controls btn border border-0 p-0 mx-1"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        onClick={() =>
+                          handleShowTaskModal(
+                            group._id,
+                            task._id,
+                            (status = true)
+                          )
+                        }
+                      >
+                        <img src="/more_small.svg" />
+                      </button>
+
+                      <ul className="p-0 dropdown-menu">
+                        {statusText
+                          .filter((status) => status != task?.status)
+                          .map((taskStatus, i) => (
+                            <li key={i}>
+                              <button
+                                className={`btn btn-${taskColor(
+                                  taskStatus
+                                )} w-100 border border-0 rounded-0`}
+                                onClick={() => {
+                                  updateStatus(taskStatus, task._id);
+                                }}
+                              >
+                                {taskStatus}
+                              </button>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  </td>
+
+                  <td>{task?.note}</td>
+                </tr>
+              ) : null
+            )}
+          </tbody>
+        )}
       </table>
     </>
   );
