@@ -11,6 +11,7 @@ import {
 
 import { addNewGroup, updateGroup, deleteGroup } from "../../api/group";
 import { addNewTask, updateTask, deleteTask } from "../../api/task";
+import { getUserProjects, updateMemberList } from "../../api/projects";
 
 import { projectChanges, updateProject } from "../../../helpers/socket";
 
@@ -104,7 +105,16 @@ const Group = () => {
   }
 
   async function handleRemoveGroup() {
-    const isSuccess = await deleteGroup(groupId, projectId, taskId);
+    const newMembers = [
+      ...new Set(
+        selectedProject[0].groupDetails
+          .filter((group) => group._id != groupId)
+          .map((group) => group.taskDetails.flatMap((task) => task.assignee))
+          .flatMap((assigneeId) => assigneeId)
+      ),
+    ];
+
+    const isSuccess = await deleteGroup(groupId, projectId, taskId, newMembers);
 
     if (isSuccess) {
       setProjects();
@@ -149,21 +159,26 @@ const Group = () => {
   }
 
   async function handleEditTask(taskTitle, dueDate, noteInput, closeBtnRef) {
-    const projectId = selectedProject[0]._id;
-    const members = [
-      ...new Set([...assigneeIdList, ...selectedProject[0].members]),
-    ];
-
-    const isSuccess = await updateTask(
+    await updateTask(
       taskTitle,
       taskId,
-      projectId,
       dueDate,
       noteInput,
       assigneeIdList,
-      members,
       (status = false)
     );
+
+    const updatedProject = await getUserProjects(userDetails._id);
+
+    const newMembers = [
+      ...new Set(
+        updatedProject[0].groupDetails
+          .map((group) => group.taskDetails.flatMap((task) => task.assignee))
+          .flatMap((id) => id)
+      ),
+    ];
+
+    const isSuccess = await updateMemberList(projectId, newMembers);
 
     if (isSuccess) {
       setProjects();
@@ -180,12 +195,22 @@ const Group = () => {
   }
 
   async function handleRemoveTask() {
-    const isSuccess = await deleteTask(groupId, taskId);
+    await deleteTask(groupId, taskId);
+    const updatedProject = await getUserProjects(userDetails._id);
+
+    const newMembers = [
+      ...new Set(
+        updatedProject[0].groupDetails
+          .map((group) => group.taskDetails.flatMap((task) => task.assignee))
+          .flatMap((id) => id)
+      ),
+    ];
+
+    const isSuccess = await updateMemberList(projectId, newMembers);
 
     if (isSuccess) {
       setProjects();
       projectChanges(socket);
-
       toast.dismiss();
       toast.success(isSuccess.message);
     }
