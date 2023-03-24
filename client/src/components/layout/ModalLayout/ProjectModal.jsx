@@ -5,12 +5,8 @@ const ProjectModal = ({
   title,
   inputId,
   inputRef,
-  owner,
-  ownerList,
-  memberList,
   handleCreate,
   handleEdit,
-  submitFunctions,
   submitBtnLabel,
 }) => {
   return (
@@ -46,6 +42,7 @@ const ProjectModal = ({
                 required
               />
             </section>
+
             <section className="mb-3">
               <label htmlFor={inputId.desc} className="col-form-label">
                 Description:
@@ -58,7 +55,8 @@ const ProjectModal = ({
                 autoComplete="off"
               />
             </section>
-            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+
+            {/* <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
               <section>
                 <label htmlFor={inputId.owners} className="col-form-label">
                   Owners:
@@ -84,8 +82,9 @@ const ProjectModal = ({
                   {ownerList}
                 </ul>
               </section>
-            </form>
-            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+            </form> */}
+
+            {/* <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
               <section>
                 <label htmlFor={inputId.members} className="col-form-label">
                   Members:
@@ -110,7 +109,7 @@ const ProjectModal = ({
                   {memberList}
                 </ul>
               </section>
-            </form>
+            </form> */}
           </div>
           <div className="modal-footer">
             {handleEdit ? (
