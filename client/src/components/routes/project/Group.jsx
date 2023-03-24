@@ -172,8 +172,11 @@ const Group = () => {
 
     const newMembers = [
       ...new Set(
-        updatedProject[0].groupDetails
-          .map((group) => group.taskDetails.flatMap((task) => task.assignee))
+        updatedProject
+          .filter((project) => project._id === projectId)[0]
+          .groupDetails.map((group) =>
+            group.taskDetails.flatMap((task) => task.assignee)
+          )
           .flatMap((id) => id)
       ),
     ];
@@ -200,8 +203,11 @@ const Group = () => {
 
     const newMembers = [
       ...new Set(
-        updatedProject[0].groupDetails
-          .map((group) => group.taskDetails.flatMap((task) => task.assignee))
+        updatedProject
+          .filter((project) => project._id === projectId)[0]
+          .groupDetails.map((group) =>
+            group.taskDetails.flatMap((task) => task.assignee)
+          )
           .flatMap((id) => id)
       ),
     ];
