@@ -178,13 +178,14 @@ const getUserProjects = asynchHandler(async (req, res) => {
  * /api/project
  */
 const addProject = asynchHandler(async (req, res) => {
-  const { title, desc, owner, chatId } = req.body;
+  const { title, desc, owner, chatId, googleFolderId } = req.body;
 
   const newProject = await Project.create({
     title,
     desc,
     owner,
     chatHistory: chatId,
+    googleFolderId,
   });
 
   const ownerList = await Promise.all(
