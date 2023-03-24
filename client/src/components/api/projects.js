@@ -23,14 +23,13 @@ export async function getUserProjects(id) {
  * http://serverurl/api/projects/
  */
 
-export async function createProject(title, desc, owner, members) {
+export async function createProject(title, desc, owner) {
   try {
     const chatId = await axios.post("api/chat");
     const response = await axios.post("api/project/", {
       title,
       desc,
       owner,
-      members,
       chatId: chatId.data._id,
     });
 
