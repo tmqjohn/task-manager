@@ -178,13 +178,12 @@ const getUserProjects = asynchHandler(async (req, res) => {
  * /api/project
  */
 const addProject = asynchHandler(async (req, res) => {
-  const { title, desc, owner, members, chatId } = req.body;
+  const { title, desc, owner, chatId } = req.body;
 
   const newProject = await Project.create({
     title,
     desc,
     owner,
-    members,
     chatHistory: chatId,
   });
 
@@ -194,18 +193,12 @@ const addProject = asynchHandler(async (req, res) => {
     )
   );
 
-  const membersList = await Promise.all(
-    newProject.members.map(
-      async (member) => await User.findById(member).select("fullName").exec()
-    )
-  );
-
   const groupDetails = [];
 
   const chatHistoryDetails = await Chat.findById(newProject.chatHistory).exec();
 
   const ownerName = ownerList.map((owner) => owner.fullName);
-  const membersName = membersList.map((member) => member.fullName);
+  const membersName = [];
 
   res.status(200).json({
     ...newProject.toObject(),
