@@ -22,8 +22,7 @@ export async function getUserProjects(id) {
  * @POST request
  * http://serverurl/api/projects/
  */
-
-export async function createProject(title, desc, owner) {
+export async function createProject(title, desc, owner, googleFolderId) {
   try {
     const chatId = await axios.post("api/chat");
     const response = await axios.post("api/project/", {
@@ -31,6 +30,7 @@ export async function createProject(title, desc, owner) {
       desc,
       owner,
       chatId: chatId.data._id,
+      googleFolderId,
     });
 
     return response.data;
