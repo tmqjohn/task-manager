@@ -32,6 +32,9 @@ const ProjectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chat",
     },
+    googleFolderId: {
+      type: String,
+    },
   },
   {
     timestamps: true,
