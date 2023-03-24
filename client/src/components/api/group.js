@@ -46,8 +46,12 @@ export async function updateGroup(title, groupId) {
  * @DELETE request
  * http://serverurl/api/group/:groupId
  */
-export async function deleteGroup(groupId, projectId, taskIds) {
+export async function deleteGroup(groupId, projectId, taskIds, members) {
   try {
+    await axios.patch(`api/project/${projectId}`, {
+      members,
+    });
+
     await axios.delete(`api/group/${groupId}`);
     await axios.put("api/task/group", {
       taskIds,
