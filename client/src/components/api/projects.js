@@ -63,6 +63,23 @@ export async function updateProject(id, title, desc, owner, members) {
 }
 
 /**
+ * @PATCH request
+ * http://serverurl/api/projects/:projectId
+ */
+
+export async function updateMemberList(id, members) {
+  try {
+    await axios.patch(`api/project/${id}`, {
+      members,
+    });
+
+    return true;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/**
  * @DELETE request
  * http://serverurl/api/projects/:projectId
  */
