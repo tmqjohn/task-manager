@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { createProject } from "../../api/projects";
 import { gapiDriveLoad } from "../../api/google";
 
-import { useProjectStore } from "../../../store/store";
+import { useProjectStore, useGoogleStore } from "../../../store/store";
 import { useUserStore } from "../../../store/store";
 import { useChatStore } from "../../../store/store";
 
@@ -17,6 +17,10 @@ const CreateProject = ({ clearInputs }) => {
   const setProjects = useProjectStore((state) => state.setProjects);
   const userDetails = useUserStore((state) => state.userDetails);
   const socket = useChatStore((state) => state.socket);
+  const { accessToken, setAccessToken } = useGoogleStore((state) => ({
+    accessToken: state.accessToken,
+    setAccessToken: state.setAccessToken,
+  }));
 
   const titleInput = useRef();
   const descInput = useRef();
@@ -41,37 +45,60 @@ const CreateProject = ({ clearInputs }) => {
       return toast.error("Project title required");
     }
 
-    let fileId;
-    const fileMetadata = {
-      name: titleInput.current.value,
-      mimeType: "application/vnd.google-apps.folder",
-    };
+    if (Object.keys(accessToken).length === 0) {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        scope: "https://www.googleapis.com/auth/drive",
+        callback: async (tokenResponse) => {
+          setAccessToken(tokenResponse);
 
-    try {
-      const file = await window.gapi.client.drive.files.create({
-        resource: fileMetadata,
+          await autheticated();
+        },
       });
 
-      fileId = file.result.id;
-    } catch (error) {
-      console.log(error);
+      client.requestAccessToken({ prompt: "consent" });
     }
 
-    const newProject = await createProject(
-      titleInput.current.value,
-      descInput.current.value,
-      [userDetails._id],
-      fileId
-    );
+    if (Object.keys(accessToken).length > 0) {
+      await autheticated();
+    }
 
-    if (newProject) {
-      setProjects();
-      projectChanges(socket);
-      navigate(`/project/${newProject._id}`);
+    async function autheticated() {
+      let fileId;
+      const fileMetadata = {
+        name: titleInput.current.value,
+        mimeType: "application/vnd.google-apps.folder",
+      };
 
-      closeBtnRef.current.click();
-      toast.dismiss();
-      toast.success("Project has been created successfully!");
+      try {
+        const file = await window.gapi.client.drive.files.create({
+          resource: fileMetadata,
+        });
+
+        fileId = file.result.id;
+      } catch (error) {
+        toast.dismiss();
+        return toast.error(error.result.error.message);
+      }
+
+      // TODO: Auth when access token is missing // folder transfer ownership, batch permission
+
+      const newProject = await createProject(
+        titleInput.current.value,
+        descInput.current.value,
+        [userDetails._id],
+        fileId
+      );
+
+      if (newProject) {
+        setProjects();
+        projectChanges(socket);
+        navigate(`/project/${newProject._id}`);
+
+        closeBtnRef.current.click();
+        toast.dismiss();
+        toast.success("Project has been created successfully!");
+      }
     }
   }
 
