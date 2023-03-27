@@ -35,6 +35,16 @@ const ProjectSchema = new mongoose.Schema(
     googleFolderId: {
       type: String,
     },
+    pendingFile: [
+      {
+        fileId: {
+          type: String,
+        },
+        permissionId: {
+          type: String,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

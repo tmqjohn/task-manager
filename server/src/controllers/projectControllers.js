@@ -215,13 +215,17 @@ const addProject = asynchHandler(async (req, res) => {
  * /api/projects/:projectId
  */
 const updateProject = asynchHandler(async (req, res) => {
-  const { title, desc, members } = req.body;
+  const { title, desc, members, pendingFile } = req.body;
   const { projectId } = req.params;
 
   const foundProject = await Project.findById(projectId);
 
   if (!title) {
-    foundProject.members = members;
+    if (pendingFile) {
+      foundProject.pendingFile = [...foundProject.pendingFile, pendingFile];
+    } else {
+      foundProject.members = members;
+    }
   } else {
     foundProject.title = title;
     foundProject.desc = desc;
