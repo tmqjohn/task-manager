@@ -16,6 +16,10 @@ router
   .delete(projectController.deleteProject) // deletes a project
   .patch(projectController.updateProject); // updates and edit project;
 
+router
+  .route("/:projectId/members/update/")
+  .patch(projectController.updateMembers); // updates the members list only
+
 router.route("/user/:id").get(projectController.getUserProjects); //gets all the projects for a specific user
 
 router.route("/groups/add").patch(projectController.addProjectGroup); // add group in a project
