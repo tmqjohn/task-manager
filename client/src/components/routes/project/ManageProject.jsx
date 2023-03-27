@@ -2,7 +2,11 @@ import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { useProjectStore, useChatStore } from "../../../store/store";
+import {
+  useProjectStore,
+  useChatStore,
+  useUserStore,
+} from "../../../store/store";
 
 import { updateProject, deleteProject } from "../../api/projects";
 
@@ -17,8 +21,10 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
     setProjects: state.setProjects,
   }));
   const socket = useChatStore((state) => state.socket);
+  const userDetails = useUserStore((state) => state.userDetails);
 
   const [ownersId, setOwnersId] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const titleInput = useRef();
   const descInput = useRef();
@@ -81,6 +87,36 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
     }
   }
 
+  async function approveFileOwnership() {
+    setIsLoading(true);
+
+    try {
+      await selectedProject[0].pendingFile.forEach(async (file) => {
+        await window.gapi.client.drive.permissions.create({
+          fileId: file.fileId,
+          moveToNewOwnersRoot: true,
+          transferOwnership: true,
+          resource: {
+            role: "owner",
+            type: "user",
+            emailAddress: userDetails.email,
+          },
+        });
+
+        await window.gapi.client.drive.files.update({
+          fileId: file.fileId,
+          addParents: selectedProject[0].googleFolderId,
+        });
+
+        setIsLoading(false);
+
+        console.log("done");
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <>
       <ProjectModal
@@ -95,7 +131,10 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
           descInput,
           closeBtnRef,
         }}
+        pendingFileCount={selectedProject[0]?.pendingFile.length}
         handleEdit={handleEdit}
+        isLoading={isLoading}
+        approveFileOwnership={approveFileOwnership}
         submitBtnLabel="Update Project"
         projectDefaults={projectDefaults}
       />
