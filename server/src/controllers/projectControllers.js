@@ -212,7 +212,7 @@ const addProject = asynchHandler(async (req, res) => {
 
 /**@ PATCH request
  * edit project
- * /api/projects/:projectId
+ * /api/projects/:projectId/
  */
 const updateProject = asynchHandler(async (req, res) => {
   const { title, desc, members, pendingFile } = req.body;
@@ -301,6 +301,23 @@ const updateProject = asynchHandler(async (req, res) => {
   }
 });
 
+/**@ PATCH request
+ * edit project
+ * /api/projects/:projectId/members/update
+ */
+const updateMembers = asynchHandler(async (req, res) => {
+  const { members } = req.body;
+  const { projectId } = req.params;
+
+  const foundProject = await Project.findById(projectId).select("members");
+
+  foundProject.members = members;
+
+  foundProject.save();
+
+  res.status(200).json({ message: "Successfully updated members list" });
+});
+
 /**@ DELETE request
  * deletes a project
  * /api/projects/:projectId
@@ -373,6 +390,7 @@ module.exports = {
   getUserProjects,
   addProject,
   updateProject,
+  updateMembers,
   deleteProject,
   addProjectGroup,
   deleteProjectGroup,
