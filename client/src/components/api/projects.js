@@ -68,11 +68,11 @@ export async function updateProject(id, title, desc, owner, members) {
 
 export async function updateMemberList(id, members) {
   try {
-    await axios.patch(`api/project/${id}`, {
+    const response = await axios.patch(`api/project/${id}/members/update/`, {
       members,
     });
 
-    return true;
+    return response.data;
   } catch (error) {
     console.log(error);
   }
