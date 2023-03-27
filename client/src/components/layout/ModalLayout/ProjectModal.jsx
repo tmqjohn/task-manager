@@ -8,6 +8,7 @@ const ProjectModal = ({
   handleCreate,
   handleEdit,
   submitBtnLabel,
+  isLoading,
 }) => {
   return (
     <div
@@ -55,63 +56,17 @@ const ProjectModal = ({
                 autoComplete="off"
               />
             </section>
-
-            {/* <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <section>
-                <label htmlFor={inputId.owners} className="col-form-label">
-                  Owners:
-                </label>
-                <div className="d-flex">
-                  <input
-                    type="text"
-                    className="form-control me-3"
-                    id={inputId.owners}
-                    placeholder="Search by username"
-                    ref={inputRef.searchOwnerInput}
-                  />
-                  <button
-                    className="btn ms-auto p-0"
-                    onClick={async () => await submitFunctions.addOwner()}
-                  >
-                    <img src="/add_big.svg" />
-                  </button>
-                </div>
-
-                <ul className="list-group list-group-flush mt-1 mb-0">
-                  {owner}
-                  {ownerList}
-                </ul>
-              </section>
-            </form> */}
-
-            {/* <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-              <section>
-                <label htmlFor={inputId.members} className="col-form-label">
-                  Members:
-                </label>
-                <div className="d-flex">
-                  <input
-                    type="text"
-                    className="form-control me-3"
-                    id={inputId.members}
-                    placeholder="Search by username"
-                    ref={inputRef.searchMemberInput}
-                  />
-                  <button
-                    className="btn ms-auto p-0"
-                    onClick={async () => await submitFunctions.addMember()}
-                  >
-                    <img src="/add_big.svg" />
-                  </button>
-                </div>
-
-                <ul className="list-group list-group-flush mt-1 mb-0">
-                  {memberList}
-                </ul>
-              </section>
-            </form> */}
           </div>
           <div className="modal-footer">
+            {isLoading ? (
+              <div
+                className="spinner-border text-secondary me-auto"
+                role="status"
+              >
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            ) : null}
+
             {handleEdit ? (
               <button
                 type="button"

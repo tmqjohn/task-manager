@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -22,6 +22,8 @@ const CreateProject = ({ clearInputs }) => {
     setAccessToken: state.setAccessToken,
   }));
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const titleInput = useRef();
   const descInput = useRef();
   const closeBtnRef = useRef();
@@ -44,6 +46,8 @@ const CreateProject = ({ clearInputs }) => {
       toast.dismiss();
       return toast.error("Project title required");
     }
+
+    setIsLoading(true);
 
     if (Object.keys(accessToken).length === 0) {
       const client = google.accounts.oauth2.initTokenClient({
@@ -95,7 +99,10 @@ const CreateProject = ({ clearInputs }) => {
         projectChanges(socket);
         navigate(`/project/${newProject._id}`);
 
+        setIsLoading(false);
+
         closeBtnRef.current.click();
+
         toast.dismiss();
         toast.success("Project has been created successfully!");
       }
@@ -117,6 +124,7 @@ const CreateProject = ({ clearInputs }) => {
       }}
       handleCreate={handleCreate}
       submitBtnLabel="Create Project"
+      isLoading={isLoading}
     />
   );
 };
