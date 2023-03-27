@@ -11,7 +11,7 @@ import {
 
 import { addFileId } from "../../api/projects";
 import { updateNewChat } from "../../api/chat";
-import { gapiDriveLoad, gapiPickerLoad } from "../../api/google";
+
 import { getUserDetails } from "../../api/user";
 
 import { sendMessage, receiveMessage } from "../../../helpers/socket";
@@ -35,11 +35,6 @@ const Chat = ({ chatBtnRef }) => {
   const chatScrollEndRef = useRef();
 
   let { projectId } = useParams();
-
-  useEffect(() => {
-    gapiPickerLoad();
-    gapiDriveLoad();
-  }, []);
 
   useEffect(() => {
     setChatHistory(selectedProject[0]?.chatHistoryDetails.chatHistory);
@@ -136,62 +131,63 @@ const Chat = ({ chatBtnRef }) => {
         name: userDetails.fullName,
       };
       const chatId = selectedProject[0].chatHistory;
-      const emailAddress = await getUserDetails(selectedProject[0].owner[0]);
+      const projectOwner = await getUserDetails(selectedProject[0].owner[0]);
 
       chatBtnRef.current.click();
 
       setIsLoading(true);
 
-      try {
-        const { result } = await window.gapi.client.drive.permissions.create({
-          fileId: selectedFile.id,
-          supportsAllDrives: true,
-          moveToNewOwnersRoot: true,
-          fields: "*",
-          resource: {
-            role: "writer",
-            type: "user",
-            emailAddress: emailAddress.email,
-          },
-        });
+      if (userDetails.email != projectOwner.email) {
+        try {
+          const { result } = await window.gapi.client.drive.permissions.create({
+            fileId: selectedFile.id,
+            supportsAllDrives: true,
+            moveToNewOwnersRoot: true,
+            resource: {
+              role: "writer",
+              type: "user",
+              emailAddress: projectOwner.email,
+            },
+          });
 
-        const response = await window.gapi.client.drive.permissions.update({
-          fileId: selectedFile.id,
-          permissionId: result.id,
-          resource: {
-            pendingOwner: true,
-            role: "writer",
-          },
-        });
+          await window.gapi.client.drive.permissions.update({
+            fileId: selectedFile.id,
+            permissionId: result.id,
+            resource: {
+              pendingOwner: true,
+              role: "writer",
+            },
+          });
 
-        // TODO:
-        // make a loading state in approve ownership and transfer ownership
-        // in manage project, approve ownership of files button - approve all button for admin to make batch permission updates on files
-        // transfer ownership
+          // TODO:
+          // make a loading state in approve ownership and transfer ownership
+          // in manage project, approve ownership of files button - approve all button for admin to make batch permission updates on files
+          // transfer ownership
 
-        await addFileId(projectId, {
-          fileId: selectedFile.id,
-          permissionId: result.id,
-        });
-
-        const isSuccess = await updateNewChat(newChat, chatId);
-
-        if (isSuccess) {
-          sendMessage({ ...newChat, room: projectId }, socket);
-
-          await setChatHistory((prev) => [
-            ...prev,
-            { ...newChat, room: projectId },
-          ]);
-
-          setProjects();
-
-          setIsLoading(false);
+          await addFileId(projectId, {
+            fileId: selectedFile.id,
+            permissionId: result.id,
+          });
+        } catch (error) {
+          console.log(error);
+          toast.dismiss();
+          return toast.error(error.result.error.message);
         }
-      } catch (error) {
-        console.log(error);
-        toast.dismiss();
-        return toast.error(error.result.error.message);
+      }
+
+      const isSuccess = await updateNewChat(newChat, chatId);
+
+      if (isSuccess) {
+        sendMessage({ ...newChat, room: projectId }, socket);
+
+        await setChatHistory((prev) => [
+          ...prev,
+          { ...newChat, room: projectId },
+        ]);
+
+        setProjects();
+
+        setIsLoading(false);
       }
     }
 

@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 import { createProject } from "../../api/projects";
-import { gapiDriveLoad } from "../../api/google";
 
 import { useProjectStore, useGoogleStore } from "../../../store/store";
 import { useUserStore } from "../../../store/store";
@@ -34,10 +33,6 @@ const CreateProject = ({ clearInputs }) => {
     titleInput.current.value = "";
     descInput.current.value = "";
   }, [clearInputs]);
-
-  useEffect(() => {
-    gapiDriveLoad();
-  }, []);
 
   async function handleCreate(e) {
     e.preventDefault();

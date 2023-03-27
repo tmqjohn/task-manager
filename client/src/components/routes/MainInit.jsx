@@ -3,6 +3,8 @@ import { Outlet } from "react-router-dom";
 
 import { useUserStore, useProjectStore } from "../../store/store";
 
+import { gapiDriveLoad, gapiPickerLoad } from "../api/google";
+
 const MainInit = () => {
   const setProjects = useProjectStore((state) => state.setProjects);
   const setUserDetails = useUserStore((state) => state.setUserDetails);
@@ -11,6 +13,9 @@ const MainInit = () => {
     const fetchData = async () => {
       await setUserDetails();
       await setProjects();
+
+      gapiPickerLoad();
+      gapiDriveLoad();
     };
 
     fetchData();
