@@ -131,7 +131,7 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
           descInput,
           closeBtnRef,
         }}
-        pendingFileCount={selectedProject[0]?.pendingFile.length}
+        pendingFileCount={selectedProject[0]?.pendingFile?.length}
         handleEdit={handleEdit}
         isLoading={isLoading}
         approveFileOwnership={approveFileOwnership}
