@@ -9,6 +9,7 @@ import {
   useGoogleStore,
 } from "../../../store/store";
 
+import { addFileId } from "../../api/projects";
 import { updateNewChat } from "../../api/chat";
 import { gapiDriveLoad, gapiPickerLoad } from "../../api/google";
 import { getUserDetails } from "../../api/user";
@@ -163,7 +164,15 @@ const Chat = ({ chatBtnRef }) => {
           },
         });
 
-        console.log(response.result.id);
+        // TODO:
+        // make a loading state in approve ownership and transfer ownership
+        // in manage project, approve ownership of files button - approve all button for admin to make batch permission updates on files
+        // transfer ownership
+
+        await addFileId(projectId, {
+          fileId: selectedFile.id,
+          permissionId: result.id,
+        });
 
         const isSuccess = await updateNewChat(newChat, chatId);
 
@@ -180,8 +189,9 @@ const Chat = ({ chatBtnRef }) => {
           setIsLoading(false);
         }
       } catch (error) {
+        console.log(error);
         toast.dismiss();
-        toast.error(error.result.error.message);
+        return toast.error(error.result.error.message);
       }
     }
 
