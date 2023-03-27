@@ -5,8 +5,10 @@ const ProjectModal = ({
   title,
   inputId,
   inputRef,
+  pendingFileCount,
   handleCreate,
   handleEdit,
+  approveFileOwnership,
   submitBtnLabel,
   isLoading,
 }) => {
@@ -44,7 +46,7 @@ const ProjectModal = ({
               />
             </section>
 
-            <section className="mb-3">
+            <section className="border-bottom pb-3">
               <label htmlFor={inputId.desc} className="col-form-label">
                 Description:
               </label>
@@ -56,6 +58,46 @@ const ProjectModal = ({
                 autoComplete="off"
               />
             </section>
+
+            {handleEdit ? (
+              <>
+                <div className="mt-2 mb-3">Ownership Options:</div>
+                <section>
+                  <div className="d-flex align-items-center">
+                    <div>
+                      File ownership approval count:
+                      <strong> {pendingFileCount}</strong>
+                    </div>
+                    <div className="ms-auto">
+                      <button
+                        type="button"
+                        className="btn btn-primary p-1"
+                        onClick={approveFileOwnership}
+                      >
+                        Approve All Files
+                      </button>
+                    </div>
+                  </div>
+                </section>
+                <section className="mt-2">
+                  <div className="d-flex align-items-center">
+                    <div className="d-flex align-items-center">
+                      <span className="me-1">Gmail:</span>
+                      <input
+                        type="text"
+                        className="form-control"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div className="ms-auto">
+                      <button type="button" className="btn btn-warning p-1">
+                        Transfer Project Ownership
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              </>
+            ) : null}
           </div>
           <div className="modal-footer">
             {isLoading ? (
