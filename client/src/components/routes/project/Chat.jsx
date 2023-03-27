@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import {
   useProjectStore,
@@ -27,6 +28,7 @@ const Chat = ({ chatBtnRef }) => {
   }));
 
   const [chatHistory, setChatHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const chatRef = useRef();
   const chatScrollEndRef = useRef();
@@ -137,10 +139,13 @@ const Chat = ({ chatBtnRef }) => {
 
       chatBtnRef.current.click();
 
+      setIsLoading(true);
+
       try {
         const { result } = await window.gapi.client.drive.permissions.create({
           fileId: selectedFile.id,
           supportsAllDrives: true,
+          moveToNewOwnersRoot: true,
           fields: "*",
           resource: {
             role: "writer",
@@ -158,22 +163,25 @@ const Chat = ({ chatBtnRef }) => {
           },
         });
 
-        console.log(response);
+        console.log(response.result.id);
+
+        const isSuccess = await updateNewChat(newChat, chatId);
+
+        if (isSuccess) {
+          sendMessage({ ...newChat, room: projectId }, socket);
+
+          await setChatHistory((prev) => [
+            ...prev,
+            { ...newChat, room: projectId },
+          ]);
+
+          setProjects();
+
+          setIsLoading(false);
+        }
       } catch (error) {
-        console.log(error);
-      }
-
-      const isSuccess = await updateNewChat(newChat, chatId);
-
-      if (isSuccess) {
-        sendMessage({ ...newChat, room: projectId }, socket);
-
-        await setChatHistory((prev) => [
-          ...prev,
-          { ...newChat, room: projectId },
-        ]);
-
-        setProjects();
+        toast.dismiss();
+        toast.error(error.result.error.message);
       }
     }
 
@@ -184,7 +192,17 @@ const Chat = ({ chatBtnRef }) => {
     <>
       <div className="offcanvas offcanvas-end" id="chatSystem">
         <section className="offcanvas-header border border-bottom">
-          <h5 className="project-chat-title">{selectedProject[0]?.title}</h5>
+          <h5 className="project-chat-title me-2  ">
+            {selectedProject[0]?.title}
+          </h5>
+          {isLoading ? (
+            <div
+              className="spinner-border text-secondary me-auto"
+              role="status"
+            >
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          ) : null}
           <button
             type="button"
             className="btn-close"
