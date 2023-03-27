@@ -79,6 +79,24 @@ export async function updateMemberList(id, members) {
 }
 
 /**
+ * @PATCH request
+ * http://serverurl/api/projects/:projectId
+ */
+export async function addFileId(id, pendingFile) {
+  console.log(pendingFile);
+
+  try {
+    await axios.patch(`api/project/${id}`, {
+      pendingFile,
+    });
+
+    return true;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/**
  * @DELETE request
  * http://serverurl/api/projects/:projectId
  */
