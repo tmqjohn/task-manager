@@ -83,8 +83,6 @@ export async function updateMemberList(id, members) {
  * http://serverurl/api/projects/:projectId
  */
 export async function addFileId(id, pendingFile) {
-  console.log(pendingFile);
-
   try {
     await axios.patch(`api/project/${id}`, {
       pendingFile,
