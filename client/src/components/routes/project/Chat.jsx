@@ -160,7 +160,6 @@ const Chat = ({ chatBtnRef }) => {
           });
 
           // TODO:
-          // make a loading state in approve ownership and transfer ownership
           // in manage project, approve ownership of files button - approve all button for admin to make batch permission updates on files
           // transfer ownership
 
