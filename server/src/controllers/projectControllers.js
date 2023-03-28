@@ -302,7 +302,7 @@ const updateProject = asynchHandler(async (req, res) => {
 });
 
 /**@ PATCH request
- * edit project
+ * update members list
  * /api/projects/:projectId/members/update
  */
 const updateMembers = asynchHandler(async (req, res) => {
@@ -316,6 +316,27 @@ const updateMembers = asynchHandler(async (req, res) => {
   foundProject.save();
 
   res.status(200).json({ message: "Successfully updated members list" });
+});
+
+/**@ PATCH request
+ * add pending google drive files to be approved by the owner
+ * /api/projects/:projectId/file/add
+ */
+const addPendingFile = asynchHandler(async (req, res) => {
+  const { pendingFile } = req.body;
+  const { projectId } = req.params;
+
+  const foundProject = await Project.findById(projectId);
+
+  if (pendingFile) {
+    foundProject.pendingFile = [...foundProject.pendingFile, pendingFile];
+  } else {
+    foundProject.pendingFile = [];
+  }
+
+  await foundProject.save();
+
+  res.status(200).json({ message: "Added file details successfully" });
 });
 
 /**@ DELETE request
@@ -391,6 +412,7 @@ module.exports = {
   addProject,
   updateProject,
   updateMembers,
+  addPendingFile,
   deleteProject,
   addProjectGroup,
   deleteProjectGroup,
