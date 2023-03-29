@@ -256,12 +256,17 @@ const Group = () => {
 
         setAssigneeList([...assigneeList, foundUser.fullName]);
         setAssigneeIdList([...assigneeIdList, foundUser._id]);
+      } else {
+        searchInput.focus;
+
+        toast.dismiss();
+        return toast.error(foundUser.message);
       }
     } else {
       searchInput.focus;
 
       toast.dismiss();
-      return toast.error(foundUser.message);
+      return toast.error("Please enter a registered username or email");
     }
   }
 
