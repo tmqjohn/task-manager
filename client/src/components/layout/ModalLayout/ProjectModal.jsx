@@ -5,11 +5,14 @@ const ProjectModal = ({
   title,
   inputId,
   inputRef,
+  user,
+  owner,
   pendingFileCount,
   handleCreate,
   handleEdit,
   approveFileOwnership,
   transferOwnership,
+  acceptOwnership,
   submitBtnLabel,
   isLoading,
 }) => {
@@ -105,9 +108,15 @@ const ProjectModal = ({
                       <button
                         type="button"
                         className="btn btn-warning p-1"
-                        onClick={transferOwnership}
+                        onClick={
+                          owner?.indexOf(user) == 1
+                            ? acceptOwnership
+                            : transferOwnership
+                        }
                       >
-                        Transfer Project Ownership
+                        {owner?.indexOf(user) == 1
+                          ? "Accept Project Ownership"
+                          : "Transfer Project Ownership"}
                       </button>
                     </div>
                   </div>
