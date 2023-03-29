@@ -6,6 +6,7 @@ import {
   useProjectStore,
   useChatStore,
   useUserStore,
+  useGoogleStore,
 } from "../../../store/store";
 
 import { addFileId } from "../../api/projects";
@@ -25,6 +26,7 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   }));
   const socket = useChatStore((state) => state.socket);
   const userDetails = useUserStore((state) => state.userDetails);
+  const accessToken = useGoogleStore((state) => state.accessToken);
 
   const [ownersId, setOwnersId] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -137,6 +139,8 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   }
 
   async function transferOwnership() {
+    await window.gapi.client.setToken(accessToken);
+
     let searchOwnerValue = newOwnerInput.current.value;
 
     if (!searchOwnerValue) {
@@ -230,6 +234,9 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
 
       setIsLoading(false);
 
+      closeBtnRef.current.click();
+      navigate("/");
+
       toast.dismiss();
       return toast.success(
         `'${selectedProject[0].title}' is pending for ownership approval to user '${foundUser.fullName}'`
@@ -279,7 +286,6 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
       setProjects();
       projectChanges(socket);
 
-      console.log("done");
       setIsLoading(false);
 
       toast.dismiss();
