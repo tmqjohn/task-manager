@@ -225,49 +225,49 @@ const Group = () => {
   async function handleAddAssignee(searchInput) {
     let searchValue = searchInput.current.value;
 
-    if (searchValue) {
-      const foundUser = await getUserDetails(searchValue);
-
-      if (!foundUser.message) {
-        if (
-          searchValue === userDetails.username ||
-          searchValue === userDetails.email
-        ) {
-          searchInput.current.value = "";
-          searchInput.focus;
-
-          toast.dismiss();
-          return toast.error("Owner cannot be added as member");
-        }
-
-        if (
-          assigneeList.includes(foundUser.fullName) ||
-          assigneeList.includes(foundUser.email)
-        ) {
-          searchInput.current.value = "";
-          searchInput.focus;
-
-          toast.dismiss();
-          return toast.error("User is already added in the project");
-        }
-
-        searchInput.current.value = "";
-        searchInput.focus;
-
-        setAssigneeList([...assigneeList, foundUser.fullName]);
-        setAssigneeIdList([...assigneeIdList, foundUser._id]);
-      } else {
-        searchInput.focus;
-
-        toast.dismiss();
-        return toast.error(foundUser.message);
-      }
-    } else {
+    if (!searchValue) {
       searchInput.focus;
 
       toast.dismiss();
       return toast.error("Please enter a registered username or email");
     }
+
+    const foundUser = await getUserDetails(searchValue);
+
+    if (foundUser.message) {
+      searchInput.focus;
+
+      toast.dismiss();
+      return toast.error(foundUser.message);
+    }
+
+    if (
+      searchValue === userDetails.username ||
+      searchValue === userDetails.email
+    ) {
+      searchInput.current.value = "";
+      searchInput.focus;
+
+      toast.dismiss();
+      return toast.error("Owner cannot be added as member");
+    }
+
+    if (
+      assigneeList.includes(foundUser.fullName) ||
+      assigneeList.includes(foundUser.email)
+    ) {
+      searchInput.current.value = "";
+      searchInput.focus;
+
+      toast.dismiss();
+      return toast.error("User is already added in the project");
+    }
+
+    searchInput.current.value = "";
+    searchInput.focus;
+
+    setAssigneeList([...assigneeList, foundUser.fullName]);
+    setAssigneeIdList([...assigneeIdList, foundUser._id]);
   }
 
   async function handleRemoveAssignee(assignee) {
