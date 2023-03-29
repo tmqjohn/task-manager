@@ -187,6 +187,9 @@ const Chat = ({ chatBtnRef }) => {
         setProjects();
 
         setIsLoading(false);
+
+        toast.dismiss();
+        toast.success(`'${selectedFile.name}' has been attached successfully`);
       }
     }
 
