@@ -14,8 +14,8 @@ const MainInit = () => {
       await setUserDetails();
       await setProjects();
 
-      gapiPickerLoad();
-      gapiDriveLoad();
+      await gapiPickerLoad();
+      await gapiDriveLoad();
     };
 
     fetchData();
