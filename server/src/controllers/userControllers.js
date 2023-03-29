@@ -38,11 +38,11 @@ const getUser = asyncHandler(async (req, res) => {
     .exec();
 
   if (!foundUser) {
-    foundUser = await User.findById(username).lean().exec();
-  }
-
-  if (!foundUser) {
-    return res.status(404).json({ message: "User not found" });
+    try {
+      foundUser = await User.findById(username).lean().exec();
+    } catch (error) {
+      return res.status(404).json({ message: "User not found" });
+    }
   }
 
   return res.status(200).json(foundUser);
