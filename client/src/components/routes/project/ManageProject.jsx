@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import {
@@ -7,6 +7,8 @@ import {
   useChatStore,
   useUserStore,
 } from "../../../store/store";
+
+import { addFileId } from "../../api/projects";
 
 import { updateProject, deleteProject } from "../../api/projects";
 
@@ -31,6 +33,7 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   const closeBtnRef = useRef();
 
   const navigate = useNavigate();
+  const { projectId } = useParams();
 
   useEffect(() => {
     titleInput.current.value = selectedProject[0]?.title;
@@ -108,12 +111,20 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
           addParents: selectedProject[0].googleFolderId,
         });
 
-        setIsLoading(false);
+        await addFileId(projectId);
 
-        console.log("done");
+        setProjects();
+
+        setIsLoading(false);
       });
+
+      toast.dismiss();
+      toast.success(
+        "Files approved are now in your google drive and ownership"
+      );
     } catch (error) {
-      console.log(error);
+      toast.dismiss();
+      return toast.success(error);
     }
   }
 
