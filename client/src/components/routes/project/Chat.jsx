@@ -114,6 +114,8 @@ const Chat = ({ chatBtnRef }) => {
     }
 
     if (Object.keys(accessToken).length > 0) {
+      await window.gapi.client.setToken({ access_token: accessToken });
+
       showPicker(accessToken.access_token);
     }
   }
