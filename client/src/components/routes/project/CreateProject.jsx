@@ -65,7 +65,7 @@ const CreateProject = ({ clearInputs }) => {
     async function autheticated() {
       let fileId;
       const fileMetadata = {
-        name: titleInput.current.value,
+        name: `TM - ${titleInput.current.value}`,
         mimeType: "application/vnd.google-apps.folder",
       };
 
