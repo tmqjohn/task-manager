@@ -95,8 +95,8 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   async function approveFileOwnership() {
     setIsLoading(true);
 
-    try {
-      await selectedProject[0].pendingFile.forEach(async (file) => {
+    await Promise.all(
+      selectedProject[0].pendingFile.map(async (file) => {
         await window.gapi.client.drive.permissions.create({
           fileId: file.fileId,
           moveToNewOwnersRoot: true,
@@ -112,22 +112,28 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
           fileId: file.fileId,
           addParents: selectedProject[0].googleFolderId,
         });
-
+      })
+    )
+      .then(async () => {
         await addFileId(projectId);
 
         setProjects();
 
         setIsLoading(false);
-      });
 
-      toast.dismiss();
-      toast.success(
-        "Files approved are now in your google drive and ownership"
-      );
-    } catch (error) {
-      toast.dismiss();
-      return toast.success(error);
-    }
+        toast.dismiss();
+        toast.success(
+          "Files approved are now in your google drive and ownership"
+        );
+      })
+      .catch((error) => {
+        setIsLoading(false);
+
+        console.log(error);
+
+        toast.dismiss();
+        return toast.error(error.result.error.message);
+      });
   }
 
   async function transferOwnership() {
@@ -178,6 +184,8 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
         });
       })
     ).catch((error) => {
+      setIsLoading(false);
+
       console.log(error);
 
       toast.dismiss();
@@ -205,6 +213,8 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
         },
       });
     } catch (error) {
+      setIsLoading(false);
+
       console.log(error);
 
       toast.dismiss();
@@ -215,11 +225,66 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
     const isSuccess = await updateProject(projectId, "", "", owner);
 
     if (isSuccess) {
+      setProjects();
+      projectChanges(socket);
+
       setIsLoading(false);
 
       toast.dismiss();
       return toast.success(
-        `'${selectedProject[0].title}' is now pending for ownership approval to user '${foundUser.fullName}'`
+        `'${selectedProject[0].title}' is pending for ownership approval to user '${foundUser.fullName}'`
+      );
+    }
+  }
+
+  async function acceptOwnership() {
+    setIsLoading(true);
+
+    const response = await window.gapi.client.drive.files.list({
+      q: `"${selectedProject[0].googleFolderId}" in parents and trashed=false`,
+      fields: "files(name, id, sharingUser)",
+    });
+
+    const foundFiles = [
+      ...response.result.files,
+      selectedProject[0].googleFolderId,
+    ];
+
+    await Promise.all(
+      foundFiles.map(async (file) => {
+        await window.gapi.client.drive.permissions.create({
+          fileId: file === selectedProject[0].googleFolderId ? file : file.id,
+          moveToNewOwnersRoot: true,
+          transferOwnership: true,
+          resource: {
+            role: "owner",
+            type: "user",
+            emailAddress: userDetails.email,
+          },
+        });
+
+        if (file != selectedProject[0].googleFolderId) {
+          await window.gapi.client.drive.files.update({
+            fileId: file.id,
+            addParents: selectedProject[0].googleFolderId,
+          });
+        }
+      })
+    );
+
+    const owner = [userDetails._id];
+    const isSuccess = await updateProject(projectId, "", "", owner);
+
+    if (isSuccess) {
+      setProjects();
+      projectChanges(socket);
+
+      console.log("done");
+      setIsLoading(false);
+
+      toast.dismiss();
+      return toast.success(
+        `All Google Drive folders and files, and this project '${selectedProject[0].title}' are now owned by you`
       );
     }
   }
@@ -240,10 +305,13 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
           closeBtnRef,
           newOwnerInput,
         }}
+        user={userDetails._id}
+        owner={selectedProject[0]?.owner}
         pendingFileCount={selectedProject[0]?.pendingFile?.length}
         handleEdit={handleEdit}
         isLoading={isLoading}
         approveFileOwnership={approveFileOwnership}
+        acceptOwnership={acceptOwnership}
         transferOwnership={transferOwnership}
         submitBtnLabel="Update Project"
         projectDefaults={projectDefaults}
