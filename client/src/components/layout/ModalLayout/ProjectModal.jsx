@@ -71,7 +71,11 @@ const ProjectModal = ({
                     <div className="ms-auto">
                       <button
                         type="button"
-                        className="btn btn-primary p-1"
+                        className={
+                          pendingFileCount
+                            ? "btn btn-primary p-1"
+                            : "btn btn-primary p-1 disabled"
+                        }
                         onClick={approveFileOwnership}
                       >
                         Approve All Files
