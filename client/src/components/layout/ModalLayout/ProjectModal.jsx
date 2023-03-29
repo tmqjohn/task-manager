@@ -96,13 +96,26 @@ const ProjectModal = ({
                       >
                         Gmail:
                       </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        autoComplete="off"
-                        id={inputId.newOwner}
-                        ref={inputRef.newOwnerInput}
-                      />
+                      {owner?.indexOf(user) == 1 ? (
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Username or Gmail"
+                          autoComplete="off"
+                          id={inputId.newOwner}
+                          ref={inputRef.newOwnerInput}
+                          disabled
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Username or Gmail"
+                          autoComplete="off"
+                          id={inputId.newOwner}
+                          ref={inputRef.newOwnerInput}
+                        />
+                      )}
                     </div>
                     <div className="ms-auto">
                       <button
