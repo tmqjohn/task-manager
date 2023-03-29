@@ -16,6 +16,7 @@ import { projectChanges } from "../../../helpers/socket";
 
 import ProjectModal from "../../layout/ModalLayout/ProjectModal";
 import ConfirmModal from "../../layout/ModalLayout/ConfirmModal";
+import { getUserDetails } from "../../api/user";
 
 const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   const { selectedProject, setProjects } = useProjectStore((state) => ({
@@ -31,6 +32,7 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   const titleInput = useRef();
   const descInput = useRef();
   const closeBtnRef = useRef();
+  const newOwnerInput = useRef();
 
   const navigate = useNavigate();
   const { projectId } = useParams();
@@ -128,6 +130,100 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
     }
   }
 
+  async function transferOwnership() {
+    let searchOwnerValue = newOwnerInput.current.value;
+
+    if (!searchOwnerValue) {
+      toast.dismiss();
+      return toast.error("Please enter a registered username or Gmail account");
+    }
+
+    setIsLoading(true);
+
+    const foundUser = await getUserDetails(searchOwnerValue);
+
+    if (foundUser.message) {
+      toast.dismiss();
+      setIsLoading(false);
+      return toast.error(foundUser.message);
+    }
+
+    const response = await window.gapi.client.drive.files.list({
+      q: `"${selectedProject[0].googleFolderId}" in parents and trashed=false`,
+      fields: "files(name, id, sharingUser)",
+    });
+
+    const foundFiles = response.result.files;
+
+    await Promise.all(
+      foundFiles.map(async (file) => {
+        const resultFiles = await window.gapi.client.drive.permissions.create({
+          fileId: file.id,
+          supportsAllDrives: true,
+          moveToNewOwnersRoot: true,
+          resource: {
+            role: "writer",
+            type: "user",
+            emailAddress: foundUser.email,
+          },
+        });
+
+        await window.gapi.client.drive.permissions.update({
+          fileId: file.id,
+          permissionId: resultFiles.result.id,
+          resource: {
+            pendingOwner: true,
+            role: "writer",
+          },
+        });
+      })
+    ).catch((error) => {
+      console.log(error);
+
+      toast.dismiss();
+      return toast.error(error.result.error.message);
+    });
+
+    try {
+      const resultFolder = await window.gapi.client.drive.permissions.create({
+        fileId: selectedProject[0].googleFolderId,
+        supportsAllDrives: true,
+        moveToNewOwnersRoot: true,
+        resource: {
+          role: "writer",
+          type: "user",
+          emailAddress: foundUser.email,
+        },
+      });
+
+      await window.gapi.client.drive.permissions.update({
+        fileId: selectedProject[0].googleFolderId,
+        permissionId: resultFolder.result.id,
+        resource: {
+          pendingOwner: true,
+          role: "writer",
+        },
+      });
+    } catch (error) {
+      console.log(error);
+
+      toast.dismiss();
+      return toast.error(error.result.error.message);
+    }
+
+    const owner = [...selectedProject[0].owner, foundUser._id];
+    const isSuccess = await updateProject(projectId, "", "", owner);
+
+    if (isSuccess) {
+      setIsLoading(false);
+
+      toast.dismiss();
+      return toast.success(
+        `'${selectedProject[0].title}' is now pending for ownership approval to user '${foundUser.fullName}'`
+      );
+    }
+  }
+
   return (
     <>
       <ProjectModal
@@ -136,16 +232,19 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
         inputId={{
           title: "edit-project-title",
           desc: "edit-project-desc",
+          newOwner: "edit-project-new-owner",
         }}
         inputRef={{
           titleInput,
           descInput,
           closeBtnRef,
+          newOwnerInput,
         }}
         pendingFileCount={selectedProject[0]?.pendingFile?.length}
         handleEdit={handleEdit}
         isLoading={isLoading}
         approveFileOwnership={approveFileOwnership}
+        transferOwnership={transferOwnership}
         submitBtnLabel="Update Project"
         projectDefaults={projectDefaults}
       />
