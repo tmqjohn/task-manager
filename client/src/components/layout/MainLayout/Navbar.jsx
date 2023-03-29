@@ -7,7 +7,10 @@ import { useUserStore, useGoogleStore } from "../../../store/store";
 import Profile from "../../routes/root/Profile";
 
 const Navbar = () => {
-  const clearUserDetails = useUserStore((state) => state.clearUserDetails);
+  const { userDetails, clearUserDetails } = useUserStore((state) => ({
+    userDetails: state.userDetails,
+    clearUserDetails: state.clearUserDetails,
+  }));
   const clearAccessToken = useGoogleStore((state) => state.clearAccessToken);
 
   const [defaultProfileInputs, setDefaultProfileInputs] = useState(false);
@@ -27,16 +30,18 @@ const Navbar = () => {
         <a className="navbar-brand" href="/">
           Task Manager
         </a>
-        <div className="d-flex ms-auto">
+        <div className="d-flex align-items-center ms-auto">
+          <h6 className="main-section-title px-3">
+            Good day, {userDetails?.fullName}!
+          </h6>
           <button
-            className="btn border-0"
+            className="btn border-0 border-end border-start"
             data-bs-toggle="modal"
             data-bs-target="#profilePrompt"
             onClick={() => setDefaultProfileInputs((prev) => !prev)}
           >
             <img src="/profile.svg" /> Profile
           </button>
-          <div className="border-end"></div>
           <button className="btn border-0" onClick={logout}>
             <img src="/logout.svg" /> Logout
           </button>

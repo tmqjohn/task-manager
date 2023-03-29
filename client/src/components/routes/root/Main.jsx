@@ -77,9 +77,6 @@ const Main = () => {
     <>
       {/* /main route */}
       <div className="container-fluid py-2">
-        <h6 className="main-section-title pb-2">
-          Good day, {userDetails.fullName}!
-        </h6>
         <h2>Projects You Manage</h2>
 
         <div className="owned-projects container-fluid mb-3">
