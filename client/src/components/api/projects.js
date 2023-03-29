@@ -44,13 +44,12 @@ export async function createProject(title, desc, owner, googleFolderId) {
  * http://serverurl/api/projects/:projectId
  */
 
-export async function updateProject(id, title, desc, owner, members) {
+export async function updateProject(id, title, desc, owner) {
   try {
     await axios.patch(`api/project/${id}`, {
       title,
       desc,
       owner,
-      members,
     });
 
     const response = await getUserProjects(owner[0]);
