@@ -29,7 +29,7 @@ export async function addNewTask(
       groupId,
     });
 
-    await axios.patch(`api/project/${projectId}`, {
+    await axios.patch(`api/project/${projectId}/members/update`, {
       members,
     });
 

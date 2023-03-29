@@ -48,7 +48,7 @@ export async function updateGroup(title, groupId) {
  */
 export async function deleteGroup(groupId, projectId, taskIds, members) {
   try {
-    await axios.patch(`api/project/${projectId}`, {
+    await axios.patch(`api/project/${projectId}/members/update/`, {
       members,
     });
 
