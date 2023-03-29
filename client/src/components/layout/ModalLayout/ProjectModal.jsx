@@ -9,6 +9,7 @@ const ProjectModal = ({
   handleCreate,
   handleEdit,
   approveFileOwnership,
+  transferOwnership,
   submitBtnLabel,
   isLoading,
 }) => {
@@ -86,15 +87,26 @@ const ProjectModal = ({
                 <section className="mt-2">
                   <div className="d-flex align-items-center">
                     <div className="d-flex align-items-center">
-                      <span className="me-1">Gmail:</span>
+                      <label
+                        htmlFor={inputId.newOwner}
+                        className="col-form-label me-2"
+                      >
+                        Gmail:
+                      </label>
                       <input
                         type="text"
                         className="form-control"
                         autoComplete="off"
+                        id={inputId.newOwner}
+                        ref={inputRef.newOwnerInput}
                       />
                     </div>
                     <div className="ms-auto">
-                      <button type="button" className="btn btn-warning p-1">
+                      <button
+                        type="button"
+                        className="btn btn-warning p-1"
+                        onClick={transferOwnership}
+                      >
                         Transfer Project Ownership
                       </button>
                     </div>
@@ -103,16 +115,13 @@ const ProjectModal = ({
               </>
             ) : null}
           </div>
+
           <div className="modal-footer">
             {isLoading ? (
-              <div
-                className="spinner-border text-secondary me-auto"
-                role="status"
-              >
+              <div className="spinner-border text-secondary me-2" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
             ) : null}
-
             {handleEdit ? (
               <button
                 type="button"
