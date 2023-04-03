@@ -55,18 +55,19 @@ const getUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
+  // checks if user is registered
   const foundUser = await User.findOne({ username }).exec();
-
   if (!foundUser) {
     return res.status(404).json({ message: "Username not found" });
   }
 
+  // checks if password is correct / compares hashed password to user's password input
   const verifiedPassword = await checkPassword(password, foundUser.password);
-
   if (!verifiedPassword) {
     return res.status(400).json({ message: "Incorrect password" });
   }
 
+  // signs a jwt and stores some user info
   const token = jwt.sign(
     {
       userId: foundUser._id,
@@ -76,6 +77,7 @@ const loginUser = asyncHandler(async (req, res) => {
     { expiresIn: "24h" }
   );
 
+  // returns the jwt to the client
   return res.status(200).json({
     message: "Login successful",
     token,
@@ -89,12 +91,13 @@ const loginUser = asyncHandler(async (req, res) => {
 const googleLoginUser = asyncHandler(async (req, res) => {
   const { googleId } = req.body;
 
+  // checks if user has registered google account
   const foundUser = await User.findOne({ username: googleId }).exec();
-
   if (!foundUser) {
     return res.status(404).json({ message: "Google account not registered" });
   }
 
+  // signs a jwt and stores some user info
   const token = jwt.sign(
     {
       userId: foundUser._id,
@@ -104,6 +107,7 @@ const googleLoginUser = asyncHandler(async (req, res) => {
     { expiresIn: "24h" }
   );
 
+  // returns the jwt to the client
   return res.status(200).json({
     message: "Login successful",
     token,
@@ -117,17 +121,19 @@ const googleLoginUser = asyncHandler(async (req, res) => {
 const registerNewUser = asyncHandler(async (req, res) => {
   const { username, password, fullName, email } = req.body;
 
+  // checks for duplicates
   const foundUsername = await User.findOne({ username }).exec();
   const foundEmail = await User.findOne({ email }).exec();
-
   if (foundUsername || foundEmail) {
     return res
       .status(400)
       .json({ message: "This username or email has already been registered" });
   }
 
+  // hash password
   const hashedPassword = hashPassword(password);
 
+  // creates a new document of login account
   await User.create({
     username,
     password: hashedPassword,
@@ -145,14 +151,15 @@ const registerNewUser = asyncHandler(async (req, res) => {
 const registerNewGoogleUser = asyncHandler(async (req, res) => {
   const { googleId, email, fullName } = req.body;
 
+  // checks for duplicates
   const foundEmail = await User.findOne({ email }).exec();
-
   if (foundEmail) {
     return res
       .status(400)
       .json({ message: "The google email has already been registered" });
   }
 
+  // creates a new document of login google account
   await User.create({
     username: googleId,
     email,
@@ -173,6 +180,7 @@ const updateUser = asyncHandler(async (req, res) => {
 
   const foundUser = await User.findOne({ username }).exec();
 
+  // checks if password has input by user, if yes, password will be changed then hashed
   if (password) {
     foundUser.password = hashPassword(password);
   }
@@ -196,20 +204,23 @@ const updateUser = asyncHandler(async (req, res) => {
 const generateOtp = asyncHandler(async (req, res) => {
   const { username } = req.body;
 
+  // finds user if registered
   const foundUser = await User.findOne({ username }).exec();
-
   if (!foundUser) {
     return res.status(404).json({ message: "Username Not Found" });
   }
 
+  // generates OTP and stores in the server
   req.app.locals.OTP = otpGenerator.generate(6, {
     upperCaseAlphabets: false,
     lowerCaseAlphabets: false,
     specialChars: false,
   });
 
+  // resets sessions password reset
   req.app.locals.resetSession = false;
 
+  // sends email to the user
   initMail(username, req.app.locals.OTP, foundUser.email);
 
   return res.status(200).send({ message: "Code has been sent to your email!" });
@@ -222,11 +233,15 @@ const generateOtp = asyncHandler(async (req, res) => {
 const verifyOtp = asyncHandler(async (req, res) => {
   const { code } = req.body;
 
+  // checks if the stored code verifies with the code user input
   if (parseInt(code) != parseInt(req.app.locals.OTP)) {
     return res.status(400).send({ message: "Invalid Code" });
   }
 
+  // clears stored OTP in the server
   req.app.locals.OTP = null;
+
+  // puts the password reset session to true
   req.app.locals.resetSession = true;
 
   return res.status(200).send({ message: "Code verification successful!" });
@@ -244,8 +259,8 @@ const resetPassword = asyncHandler(async (req, res) => {
     .select([, "-createdAt", "-updatedAt", "-email", "-username", "-fullName"])
     .exec();
 
+  // checks if the password input by user is the same as the previous one
   const verifiedPassword = await checkPassword(password, foundUser.password);
-
   if (verifiedPassword) {
     return res.status(400).json({
       message: "You already used this password once. Please try a new password",
