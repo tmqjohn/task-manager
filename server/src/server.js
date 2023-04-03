@@ -20,6 +20,7 @@ const io = new Server(server, {
   },
 });
 
+// middlewares
 app.use(helmet());
 
 app.use(cors(corsOptions));
