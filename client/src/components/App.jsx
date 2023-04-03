@@ -18,10 +18,12 @@ import MainLayout from "./layout/MainLayout/MainLayout";
 import MainPage from "./routes/root/Main";
 import ProjectsPage from "./routes/project/Project";
 
-//middleware
+//middleware for protecting routes
 import { AuthorizeUser, ProtectedRoute } from "../middleware/auth";
 
+// react router initialization
 const router = createBrowserRouter([
+  // main routes / protected when user is not logged in
   {
     path: "/",
     element: (
@@ -47,6 +49,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+  // login routes / protected when user is logged in
   {
     path: "/auth/login",
     element: (
