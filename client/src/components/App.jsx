@@ -19,7 +19,7 @@ import MainPage from "./routes/root/Main";
 import ProjectsPage from "./routes/project/Project";
 
 //middleware for protecting routes
-import { AuthorizeUser, ProtectedRoute } from "../middleware/auth";
+import { AuthorizeUser, ProtectedRoute } from "../middleware/Auth";
 
 // react router initialization
 const router = createBrowserRouter([
