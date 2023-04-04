@@ -26,7 +26,10 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   }));
   const socket = useChatStore((state) => state.socket);
   const userDetails = useUserStore((state) => state.userDetails);
-  const accessToken = useGoogleStore((state) => state.accessToken);
+  const { accessToken, setAccessToken } = useGoogleStore((state) => ({
+    accessToken: state.accessToken,
+    setAccessToken: state.setAccessToken,
+  }));
 
   const [ownersId, setOwnersId] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -97,50 +100,73 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
   async function approveFileOwnership() {
     setIsLoading(true);
 
-    await Promise.all(
-      selectedProject[0].pendingFile.map(async (file) => {
-        await window.gapi.client.drive.permissions.create({
-          fileId: file.fileId,
-          moveToNewOwnersRoot: true,
-          transferOwnership: true,
-          resource: {
-            role: "owner",
-            type: "user",
-            emailAddress: userDetails.email,
-          },
-        });
+    if (Object.keys(accessToken).length === 0) {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        scope:
+          "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file",
+        callback: async (tokenResponse) => {
+          await setAccessToken(tokenResponse);
 
-        await window.gapi.client.drive.files.update({
-          fileId: file.fileId,
-          addParents: selectedProject[0].googleFolderId,
-        });
-      })
-    )
-      .then(async () => {
-        await addFileId(projectId);
-
-        setProjects();
-
-        setIsLoading(false);
-
-        toast.dismiss();
-        toast.success(
-          "Files approved are now in your google drive and ownership"
-        );
-      })
-      .catch((error) => {
-        setIsLoading(false);
-
-        console.log(error);
-
-        toast.dismiss();
-        return toast.error(error.result.error.message);
+          await handleAppriveFileOwnership();
+        },
       });
+
+      client.requestAccessToken({ prompt: "consent" });
+    }
+
+    if (Object.keys(accessToken).length > 0) {
+      await handleAppriveFileOwnership();
+    }
+
+    async function handleAppriveFileOwnership() {
+      await window.gapi.client.setToken({
+        access_token: accessToken.access_token,
+      });
+
+      await Promise.all(
+        selectedProject[0].pendingFile.map(async (file) => {
+          await window.gapi.client.drive.permissions.create({
+            fileId: file.fileId,
+            moveToNewOwnersRoot: true,
+            transferOwnership: true,
+            resource: {
+              role: "owner",
+              type: "user",
+              emailAddress: userDetails.email,
+            },
+          });
+
+          await window.gapi.client.drive.files.update({
+            fileId: file.fileId,
+            addParents: selectedProject[0].googleFolderId,
+          });
+        })
+      )
+        .then(async () => {
+          await addFileId(projectId);
+
+          setProjects();
+
+          setIsLoading(false);
+
+          toast.dismiss();
+          toast.success(
+            "Files approved are now in your google drive and ownership"
+          );
+        })
+        .catch((error) => {
+          setIsLoading(false);
+
+          console.log(error);
+
+          toast.dismiss();
+          return toast.error(error.result.error.message);
+        });
+    }
   }
 
   async function transferOwnership() {
-    await window.gapi.client.setToken(accessToken);
-
     let searchOwnerValue = newOwnerInput.current.value;
 
     if (!searchOwnerValue) {
@@ -150,25 +176,81 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
 
     setIsLoading(true);
 
-    const foundUser = await getUserDetails(searchOwnerValue);
+    if (Object.keys(accessToken).length === 0) {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        scope:
+          "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file",
+        callback: async (tokenResponse) => {
+          await setAccessToken(tokenResponse);
 
-    if (foundUser.message) {
-      toast.dismiss();
-      setIsLoading(false);
-      return toast.error(foundUser.message);
+          await handleTransferOwnership();
+        },
+      });
+
+      client.requestAccessToken({ prompt: "consent" });
     }
 
-    const response = await window.gapi.client.drive.files.list({
-      q: `"${selectedProject[0].googleFolderId}" in parents and trashed=false`,
-      fields: "files(name, id, sharingUser)",
-    });
+    if (Object.keys(accessToken).length > 0) {
+      await handleTransferOwnership();
+    }
 
-    const foundFiles = response.result.files;
+    async function handleTransferOwnership() {
+      await window.gapi.client.setToken({
+        access_token: accessToken.access_token,
+      });
 
-    await Promise.all(
-      foundFiles.map(async (file) => {
-        const resultFiles = await window.gapi.client.drive.permissions.create({
-          fileId: file.id,
+      const foundUser = await getUserDetails(searchOwnerValue);
+
+      if (foundUser.message) {
+        toast.dismiss();
+        setIsLoading(false);
+        return toast.error(foundUser.message);
+      }
+
+      const response = await window.gapi.client.drive.files.list({
+        q: `"${selectedProject[0].googleFolderId}" in parents and trashed=false`,
+        fields: "files(name, id, sharingUser)",
+      });
+
+      const foundFiles = response.result.files;
+
+      await Promise.all(
+        foundFiles.map(async (file) => {
+          const resultFiles = await window.gapi.client.drive.permissions.create(
+            {
+              fileId: file.id,
+              supportsAllDrives: true,
+              moveToNewOwnersRoot: true,
+              resource: {
+                role: "writer",
+                type: "user",
+                emailAddress: foundUser.email,
+              },
+            }
+          );
+
+          await window.gapi.client.drive.permissions.update({
+            fileId: file.id,
+            permissionId: resultFiles.result.id,
+            resource: {
+              pendingOwner: true,
+              role: "writer",
+            },
+          });
+        })
+      ).catch((error) => {
+        setIsLoading(false);
+
+        console.log(error);
+
+        toast.dismiss();
+        return toast.error(error.result.error.message);
+      });
+
+      try {
+        const resultFolder = await window.gapi.client.drive.permissions.create({
+          fileId: selectedProject[0].googleFolderId,
           supportsAllDrives: true,
           moveToNewOwnersRoot: true,
           resource: {
@@ -179,119 +261,115 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
         });
 
         await window.gapi.client.drive.permissions.update({
-          fileId: file.id,
-          permissionId: resultFiles.result.id,
+          fileId: selectedProject[0].googleFolderId,
+          permissionId: resultFolder.result.id,
           resource: {
             pendingOwner: true,
             role: "writer",
           },
         });
-      })
-    ).catch((error) => {
-      setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
 
-      console.log(error);
+        console.log(error);
 
-      toast.dismiss();
-      return toast.error(error.result.error.message);
-    });
+        toast.dismiss();
+        return toast.error(error.result.error.message);
+      }
 
-    try {
-      const resultFolder = await window.gapi.client.drive.permissions.create({
-        fileId: selectedProject[0].googleFolderId,
-        supportsAllDrives: true,
-        moveToNewOwnersRoot: true,
-        resource: {
-          role: "writer",
-          type: "user",
-          emailAddress: foundUser.email,
-        },
-      });
+      const owner = [...selectedProject[0].owner, foundUser._id];
+      const isSuccess = await updateProject(projectId, "", "", owner);
 
-      await window.gapi.client.drive.permissions.update({
-        fileId: selectedProject[0].googleFolderId,
-        permissionId: resultFolder.result.id,
-        resource: {
-          pendingOwner: true,
-          role: "writer",
-        },
-      });
-    } catch (error) {
-      setIsLoading(false);
+      if (isSuccess) {
+        setProjects();
+        projectChanges(socket);
 
-      console.log(error);
+        setIsLoading(false);
 
-      toast.dismiss();
-      return toast.error(error.result.error.message);
-    }
+        closeBtnRef.current.click();
+        navigate("/");
 
-    const owner = [...selectedProject[0].owner, foundUser._id];
-    const isSuccess = await updateProject(projectId, "", "", owner);
-
-    if (isSuccess) {
-      setProjects();
-      projectChanges(socket);
-
-      setIsLoading(false);
-
-      closeBtnRef.current.click();
-      navigate("/");
-
-      toast.dismiss();
-      return toast.success(
-        `'${selectedProject[0].title}' is pending for ownership approval to user '${foundUser.fullName}'`
-      );
+        toast.dismiss();
+        return toast.success(
+          `'${selectedProject[0].title}' is pending for ownership approval to user '${foundUser.fullName}'`
+        );
+      }
     }
   }
 
   async function acceptOwnership() {
     setIsLoading(true);
 
-    const response = await window.gapi.client.drive.files.list({
-      q: `"${selectedProject[0].googleFolderId}" in parents and trashed=false`,
-      fields: "files(name, id, sharingUser)",
-    });
+    if (Object.keys(accessToken).length === 0) {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        scope:
+          "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file",
+        callback: async (tokenResponse) => {
+          await setAccessToken(tokenResponse);
 
-    const foundFiles = [
-      ...response.result.files,
-      selectedProject[0].googleFolderId,
-    ];
+          await handleAcceptOwnership();
+        },
+      });
 
-    await Promise.all(
-      foundFiles.map(async (file) => {
-        await window.gapi.client.drive.permissions.create({
-          fileId: file === selectedProject[0].googleFolderId ? file : file.id,
-          moveToNewOwnersRoot: true,
-          transferOwnership: true,
-          resource: {
-            role: "owner",
-            type: "user",
-            emailAddress: userDetails.email,
-          },
-        });
+      client.requestAccessToken({ prompt: "consent" });
+    }
 
-        if (file != selectedProject[0].googleFolderId) {
-          await window.gapi.client.drive.files.update({
-            fileId: file.id,
-            addParents: selectedProject[0].googleFolderId,
+    if (Object.keys(accessToken).length > 0) {
+      await handleAcceptOwnership();
+    }
+
+    async function handleAcceptOwnership() {
+      await window.gapi.client.setToken({
+        access_token: accessToken.access_token,
+      });
+
+      const response = await window.gapi.client.drive.files.list({
+        q: `"${selectedProject[0].googleFolderId}" in parents and trashed=false`,
+        fields: "files(name, id, sharingUser)",
+      });
+
+      const foundFiles = [
+        ...response.result.files,
+        selectedProject[0].googleFolderId,
+      ];
+
+      await Promise.all(
+        foundFiles.map(async (file) => {
+          await window.gapi.client.drive.permissions.create({
+            fileId: file === selectedProject[0].googleFolderId ? file : file.id,
+            moveToNewOwnersRoot: true,
+            transferOwnership: true,
+            resource: {
+              role: "owner",
+              type: "user",
+              emailAddress: userDetails.email,
+            },
           });
-        }
-      })
-    );
 
-    const owner = [userDetails._id];
-    const isSuccess = await updateProject(projectId, "", "", owner);
-
-    if (isSuccess) {
-      setProjects();
-      projectChanges(socket);
-
-      setIsLoading(false);
-
-      toast.dismiss();
-      return toast.success(
-        `All Google Drive folders and files, and this project '${selectedProject[0].title}' are now owned by you`
+          if (file != selectedProject[0].googleFolderId) {
+            await window.gapi.client.drive.files.update({
+              fileId: file.id,
+              addParents: selectedProject[0].googleFolderId,
+            });
+          }
+        })
       );
+
+      const owner = [userDetails._id];
+      const isSuccess = await updateProject(projectId, "", "", owner);
+
+      if (isSuccess) {
+        setProjects();
+        projectChanges(socket);
+
+        setIsLoading(false);
+
+        toast.dismiss();
+        return toast.success(
+          `All Google Drive folders and files, and this project '${selectedProject[0].title}' are now owned by you`
+        );
+      }
     }
   }
 

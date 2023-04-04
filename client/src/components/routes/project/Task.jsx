@@ -112,7 +112,7 @@ const Task = ({ group, handleShowTaskModal, handleShowRemoveTask }) => {
                 <div className="task-status-container d-flex">
                   {task.status}
 
-                  {selectedProject[0].owner.includes(userDetails._id) ? (
+                  {selectedProject[0]?.owner.includes(userDetails._id) ? (
                     <>
                       <button
                         className="show-controls btn border border-0 p-0 mx-1"

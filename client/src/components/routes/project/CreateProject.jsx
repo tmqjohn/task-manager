@@ -47,7 +47,8 @@ const CreateProject = ({ clearInputs }) => {
     if (Object.keys(accessToken).length === 0) {
       const client = google.accounts.oauth2.initTokenClient({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        scope: "https://www.googleapis.com/auth/drive",
+        scope:
+          "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file",
         callback: async (tokenResponse) => {
           setAccessToken(tokenResponse);
 
@@ -68,6 +69,10 @@ const CreateProject = ({ clearInputs }) => {
         name: `TM - ${titleInput.current.value}`,
         mimeType: "application/vnd.google-apps.folder",
       };
+
+      await window.gapi.client.setToken({
+        access_token: accessToken.access_token,
+      });
 
       try {
         const file = await window.gapi.client.drive.files.create({

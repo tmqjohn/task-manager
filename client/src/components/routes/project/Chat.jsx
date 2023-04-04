@@ -102,7 +102,8 @@ const Chat = ({ chatBtnRef }) => {
     if (Object.keys(accessToken).length === 0) {
       const client = google.accounts.oauth2.initTokenClient({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        scope: "https://www.googleapis.com/auth/drive",
+        scope:
+          "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file",
         callback: (tokenResponse) => {
           setAccessToken(tokenResponse);
 
@@ -114,7 +115,9 @@ const Chat = ({ chatBtnRef }) => {
     }
 
     if (Object.keys(accessToken).length > 0) {
-      await window.gapi.client.setToken({ access_token: accessToken });
+      await window.gapi.client.setToken({
+        access_token: accessToken.access_token,
+      });
 
       showPicker(accessToken.access_token);
     }
@@ -164,6 +167,22 @@ const Chat = ({ chatBtnRef }) => {
           await addFileId(projectId, {
             fileId: selectedFile.id,
             permissionId: result.id,
+          });
+        } catch (error) {
+          console.log(error);
+
+          setIsLoading(false);
+
+          toast.dismiss();
+          return toast.error(error.result.error.message);
+        }
+      }
+
+      if (userDetails.email === projectOwner.email) {
+        try {
+          await window.gapi.client.drive.files.update({
+            fileId: selectedFile.id,
+            addParents: selectedProject[0].googleFolderId,
           });
         } catch (error) {
           console.log(error);
