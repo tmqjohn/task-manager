@@ -50,9 +50,9 @@ const CreateProject = ({ clearInputs }) => {
         scope:
           "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file",
         callback: async (tokenResponse) => {
-          setAccessToken(tokenResponse);
+          await setAccessToken(tokenResponse);
 
-          await autheticated();
+          await handleCreateNewProject();
         },
       });
 
@@ -60,10 +60,10 @@ const CreateProject = ({ clearInputs }) => {
     }
 
     if (Object.keys(accessToken).length > 0) {
-      await autheticated();
+      await handleCreateNewProject();
     }
 
-    async function autheticated() {
+    async function handleCreateNewProject() {
       let fileId;
       const fileMetadata = {
         name: `TM - ${titleInput.current.value}`,
