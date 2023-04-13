@@ -8,7 +8,7 @@ const DISCOVERY_DOCS = [
 ];
 
 export async function gapiPickerLoad() {
-  window.gapi.load("picker", initGapiPickerLoad);
+  await window.gapi.load("picker", initGapiPickerLoad);
 }
 
 export function initGapiPickerLoad() {
