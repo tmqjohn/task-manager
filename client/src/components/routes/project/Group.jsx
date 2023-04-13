@@ -135,6 +135,11 @@ const Group = () => {
   }
 
   async function handleAddTask(taskTitle, dueDate, noteInput, closeBtnRef) {
+    if (!taskTitle) {
+      toast.dismiss();
+      return toast.error("Task title required");
+    }
+
     const projectId = selectedProject[0]._id;
     const members = [
       ...new Set([...assigneeIdList, ...selectedProject[0].members]),
