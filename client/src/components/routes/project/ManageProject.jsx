@@ -174,6 +174,13 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
       return toast.error("Please enter a registered username or Gmail account");
     }
 
+    if (selectedProject[0]?.pendingFile?.length) {
+      toast.dismiss();
+      return toast.info(
+        "Please approve all pending files first before transfering project ownership"
+      );
+    }
+
     setIsLoading(true);
 
     if (Object.keys(accessToken).length === 0) {
