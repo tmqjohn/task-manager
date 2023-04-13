@@ -60,6 +60,10 @@ const CreateProject = ({ clearInputs }) => {
     }
 
     if (Object.keys(accessToken).length > 0) {
+      await window.gapi.client.setToken({
+        access_token: accessToken.access_token,
+      });
+
       await handleCreateNewProject();
     }
 
@@ -69,10 +73,6 @@ const CreateProject = ({ clearInputs }) => {
         name: `TM - ${titleInput.current.value}`,
         mimeType: "application/vnd.google-apps.folder",
       };
-
-      await window.gapi.client.setToken({
-        access_token: accessToken.access_token,
-      });
 
       try {
         const file = await window.gapi.client.drive.files.create({
