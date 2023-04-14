@@ -3,10 +3,10 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",
   "https://localhost:5173",
   "https://127.0.0.1:5173",
-  "http://167.172.109.166",
-  "https://167.172.109.166",
-  "http://167.172.109.166.nip.io",
-  "https://167.172.109.166.nip.io",
+  "http://167.172.109.166:8080",
+  "https://167.172.109.166:8080",
+  "http://167.172.109.166.nip.io:8080",
+  "https://167.172.109.166.nip.io:8080",
 ];
 
 module.exports = allowedOrigins;
