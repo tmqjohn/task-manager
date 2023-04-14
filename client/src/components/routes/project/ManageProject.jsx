@@ -323,14 +323,14 @@ const ManageProject = ({ projectDefaults, setProjectsDefaults }) => {
     }
 
     if (Object.keys(accessToken).length > 0) {
-      await handleAcceptOwnership();
-    }
-
-    async function handleAcceptOwnership() {
       await window.gapi.client.setToken({
         access_token: accessToken.access_token,
       });
 
+      await handleAcceptOwnership();
+    }
+
+    async function handleAcceptOwnership() {
       const response = await window.gapi.client.drive.files.list({
         q: `"${selectedProject[0].googleFolderId}" in parents and trashed=false`,
         fields: "files(name, id, sharingUser)",
