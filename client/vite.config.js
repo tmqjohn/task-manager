@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), basicSsl()],
   base: "https://167.172.109.166.nip.io/",
   server: {
-    port: "8080",
+    port: "5000",
     host: true,
   },
 });
